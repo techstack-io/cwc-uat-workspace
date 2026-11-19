@@ -1,5 +1,6 @@
 
 import Link from "next/link";
+import AuthNavigation from "./AuthNavigation";
 import {
   ArrowRight,
   Check,
@@ -96,12 +97,7 @@ export default function Home() {
             </a>
           </nav>
 
-          <Link
-            href="/workspace"
-            className="rounded-xl bg-[#E64833] px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#C83B29]"
-          >
-            Open demo
-          </Link>
+          <AuthNavigation />
         </header>
 
         {/* Hero */}
@@ -333,8 +329,8 @@ export default function Home() {
 
             <p className="leading-relaxed text-[#244855]/75">
               Human approval is required in the planned
-              production workflow. Authentication and
-              integrations are not yet enabled in this starter.
+              production workflow. Clerk authentication is enabled. AI extraction,
+              database persistence, and Jira integration are not yet enabled.
             </p>
           </div>
         </div>
