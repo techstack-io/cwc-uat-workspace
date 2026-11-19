@@ -121,7 +121,7 @@ export default function Home() {
             </p>
 
             <h1
-              className="max-w-2xl text-5xl font-bold leading-[1.08] tracking-tight text-slate-950 md:text-6xl"
+              className="max-w-2xl text-5xl text-[#D97706] font-bold leading-[1.08] tracking-tight text-slate-950 md:text-6xl"
               style={{
                 fontFamily: "var(--font-space-grotesk)",
               }}
