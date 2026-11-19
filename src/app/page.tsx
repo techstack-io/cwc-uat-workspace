@@ -112,18 +112,20 @@ export default function Home() {
               <Sparkles size={15} className="text-[#E64833]" />
               AI-powered UAT
             </p>
-
+     
             <h1
-              className="max-w-2xl text-4xl font-medium leading-[1.35] tracking-tight md:text-5xl"
+              className="max-w-2xl text-4xl font-medium tracking-tight md:text-5xl"
               style={{
                 fontFamily: "var(--font-space-grotesk)",
+                lineHeight: 1.15,
               }}
             >
-            Turn UAT feedback
-              <span className="block text-[#E64833]">
+              Turn UAT feedback
+              <span className="mt-4 block text-[#E64833]">
                 into Jira tickets.
               </span>
             </h1>
+
 
             <p className="mt-8 max-w-xl text-lg leading-relaxed text-[#244855]/80 md:text-xl">
               Describe what you found in plain English.
