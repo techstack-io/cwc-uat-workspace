@@ -1,3 +1,5 @@
+
+import "./globals.css";
 import { Space_Grotesk } from "next/font/google";
 
 const spaceGrotesk = Space_Grotesk({
@@ -6,6 +8,17 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
 });
 
-import "./globals.css";
-export const metadata={title:"UAT Workspace",description:"AI-assisted UAT feedback"};
-export default function Layout({children}:{children:React.ReactNode}){return <html lang="en"><body>{children}</body></html>}
+export default function Layout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body className={spaceGrotesk.variable}>
+        {children}
+      </body>
+    </html>
+  );
+}
+
