@@ -114,10 +114,10 @@ export default function Home() {
             </p>
      
             <h1
-              className="max-w-2xl text-4xl font-medium tracking-tight md:text-5xl"
+              className="max-w-2xl text-4xl font-normal tracking-tight md:text-5xl"
               style={{
                 fontFamily: "var(--font-space-grotesk)",
-                lineHeight: 1.15,
+                lineHeight: 1.13,
               }}
             >
               Turn UAT feedback
