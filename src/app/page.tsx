@@ -1,13 +1,217 @@
+
 import Link from "next/link";
-import {ClipboardCheck,ArrowRight,Sparkles,Layers3,Users,TicketCheck,ShieldCheck} from "lucide-react";
-const features=[{Icon:Sparkles,title:"Use natural language",text:"Paste observations—no special format required."},{Icon:Layers3,title:"AI-powered extraction",text:"Organize observations into proposed defects."},{Icon:Users,title:"Review and refine",text:"Edit, merge, or reject proposed issues."},{Icon:TicketCheck,title:"Create Jira tickets",text:"Send approved issues to Jira once integrated."}];
-export default function Home(){return <main>
-<div className="bg-gradient-to-br from-white via-white to-blue-100">
-<header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6"><Link href="/" className="flex items-center gap-3"><span className="rounded-xl bg-clark p-3 text-white"><ClipboardCheck/></span><span><strong className="block text-xl">UAT Workspace</strong><small className="text-slate-500">Clark Wire & Cable</small></span></Link><nav className="hidden gap-8 text-sm font-semibold md:flex"><a href="#features">Features</a><a href="#how">How It Works</a><a href="#security">Security</a></nav><Link href="/workspace" className="rounded-xl bg-clark px-5 py-3 font-semibold text-white">Open demo</Link></header>
-<section className="mx-auto grid max-w-7xl items-center gap-12 px-6 pb-24 pt-20 lg:grid-cols-2">
-<div><p className="mb-7 text-sm font-bold uppercase tracking-[.25em] text-clark">AI-powered UAT</p><h1 className="text-5xl font-extrabold leading-tight tracking-tight md:text-6xl">Turn UAT feedback into Jira tickets</h1><p className="mt-8 max-w-xl text-xl leading-relaxed text-slate-600">Describe what you found in plain English. AI extracts, organizes, and prepares software defects for review and Jira submission.</p><div className="mt-10 flex flex-wrap gap-4"><Link href="/workspace" className="flex items-center gap-2 rounded-xl bg-clark px-7 py-4 font-bold text-white">Try workspace <ArrowRight size={18}/></Link><a href="#how" className="rounded-xl border bg-white px-7 py-4 font-bold">See how it works</a></div></div>
-<div className="rounded-2xl border border-blue-100 bg-white p-7 shadow-2xl shadow-blue-100"><h2 className="mb-5 text-xl font-bold">New UAT Submission</h2><div className="rounded-xl border bg-slate-50 p-5 text-sm leading-7">Banner All – Rotation not active. Click and slide not active.<p className="mt-3">Banner 1 – Letters don’t match, Bold vs Non. Underline added. Image is too dark. Picture cut at bottom.</p></div><div className="my-5 text-center"><span className="inline-block rounded-xl bg-clark px-6 py-3 font-bold text-white">✦ Extract Issues with AI</span></div><div className="rounded-xl border p-4"><h3 className="mb-3 font-bold">Proposed Issues (3)</h3>{["Banner rotation not active","Banner text formatting is inconsistent","Banner image is too dark and cropped"].map(s=><div key={s} className="flex gap-3 border-t py-3 text-sm"><span className="text-clark">✓</span><span className="rounded bg-red-50 px-2 text-red-700">Bug</span>{s}</div>)}</div><p className="mt-3 text-right text-xs text-slate-400">Illustrative preview</p></div>
-</section></div>
-<section id="features" className="mx-auto grid max-w-7xl gap-8 px-6 py-20 md:grid-cols-2 lg:grid-cols-4">{features.map(({Icon,title,text})=><div key={title}><Icon className="mb-5 text-clark" size={30}/><h3 className="mb-2 text-lg font-bold">{title}</h3><p className="text-slate-600">{text}</p></div>)}</section>
-<section id="how" className="bg-slate-50 px-6 py-20 text-center"><h2 className="text-3xl font-bold">From observations to actionable defects</h2><p className="mt-5 text-slate-600">Submit feedback → Extract issues → Review → Create Jira tickets</p></section>
-<section id="security" className="mx-auto flex max-w-5xl gap-4 px-6 py-14"><ShieldCheck className="shrink-0 text-clark"/><p className="text-slate-600">Human approval is required in the planned production workflow. Authentication and integrations are not yet enabled in this starter.</p></section></main>}
+import {
+  ClipboardCheck,
+  ArrowRight,
+  Sparkles,
+  Layers3,
+  Users,
+  TicketCheck,
+  ShieldCheck,
+} from "lucide-react";
+
+const features = [
+  {
+    Icon: Sparkles,
+    title: "Use natural language",
+    text: "Paste observations—no special format required.",
+  },
+  {
+    Icon: Layers3,
+    title: "AI-powered extraction",
+    text: "Organize observations into proposed defects.",
+  },
+  {
+    Icon: Users,
+    title: "Review and refine",
+    text: "Edit, merge, or reject proposed issues.",
+  },
+  {
+    Icon: TicketCheck,
+    title: "Create Jira tickets",
+    text: "Send approved issues to Jira once integrated.",
+  },
+];
+
+const proposedIssues = [
+  "Banner rotation not active",
+  "Banner text formatting is inconsistent",
+  "Banner image is too dark and cropped",
+];
+
+export default function Home() {
+  return (
+    <main>
+      {/* Header and Hero */}
+      <div className="bg-gradient-to-br from-white via-white to-blue-100">
+        <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
+          <Link href="/" className="flex items-center gap-3">
+            <span className="rounded-xl bg-clark p-3 text-white">
+              <ClipboardCheck />
+            </span>
+
+            <span>
+              <strong className="block text-xl">
+                UAT Workspace
+              </strong>
+              <small className="text-slate-500">
+                Clark Wire & Cable
+              </small>
+            </span>
+          </Link>
+
+          <nav className="hidden gap-8 text-sm font-semibold md:flex">
+            <a href="#features">Features</a>
+            <a href="#how">How It Works</a>
+            <a href="#security">Security</a>
+          </nav>
+
+          <Link
+            href="/workspace"
+            className="rounded-xl bg-clark px-5 py-3 font-semibold text-white"
+          >
+            Open demo
+          </Link>
+        </header>
+
+        <section className="mx-auto grid max-w-7xl items-center gap-12 px-6 pb-24 pt-20 lg:grid-cols-2">
+          {/* Hero Content */}
+          <div>
+            <p className="mb-7 text-sm font-bold uppercase tracking-[.25em] text-clark">
+              AI-powered UAT
+            </p>
+
+            <h1
+              className="text-5xl font-extrabold leading-tight tracking-tight md:text-6xl"
+              style={{
+                fontFamily: "var(--font-space-grotesk)",
+              }}
+            >
+              Turn UAT feedback into Jira tickets
+            </h1>
+
+            <p className="mt-8 max-w-xl text-xl leading-relaxed text-slate-600">
+              Describe what you found in plain English. AI extracts,
+              organizes, and prepares software defects for review
+              and Jira submission.
+            </p>
+
+            <div className="mt-10 flex flex-wrap gap-4">
+              <Link
+                href="/workspace"
+                className="flex items-center gap-2 rounded-xl bg-clark px-7 py-4 font-bold text-white"
+              >
+                Try workspace
+                <ArrowRight size={18} />
+              </Link>
+
+              <a
+                href="#how"
+                className="rounded-xl border bg-white px-7 py-4 font-bold"
+              >
+                See how it works
+              </a>
+            </div>
+          </div>
+
+          {/* UAT Submission Preview */}
+          <div className="rounded-2xl border border-blue-100 bg-white p-7 shadow-2xl shadow-blue-100">
+            <h2 className="mb-5 text-xl font-bold">
+              New UAT Submission
+            </h2>
+
+            <div className="rounded-xl border bg-slate-50 p-5 text-sm leading-7">
+              Banner All – Rotation not active. Click and slide
+              not active.
+
+              <p className="mt-3">
+                Banner 1 – Letters don&apos;t match, Bold vs Non.
+                Underline added. Image is too dark. Picture cut
+                at bottom.
+              </p>
+            </div>
+
+            <div className="my-5 text-center">
+              <span className="inline-block rounded-xl bg-clark px-6 py-3 font-bold text-white">
+                ✦ Extract Issues with AI
+              </span>
+            </div>
+
+            <div className="rounded-xl border p-4">
+              <h3 className="mb-3 font-bold">
+                Proposed Issues (3)
+              </h3>
+
+              {proposedIssues.map((issue) => (
+                <div
+                  key={issue}
+                  className="flex gap-3 border-t py-3 text-sm"
+                >
+                  <span className="text-clark">✓</span>
+
+                  <span className="rounded bg-red-50 px-2 text-red-700">
+                    Bug
+                  </span>
+
+                  <span>{issue}</span>
+                </div>
+              ))}
+            </div>
+
+            <p className="mt-3 text-right text-xs text-slate-400">
+              Illustrative preview
+            </p>
+          </div>
+        </section>
+      </div>
+
+      {/* Features */}
+      <section
+        id="features"
+        className="mx-auto grid max-w-7xl gap-8 px-6 py-20 md:grid-cols-2 lg:grid-cols-4"
+      >
+        {features.map(({ Icon, title, text }) => (
+          <div key={title}>
+            <Icon className="mb-5 text-clark" size={30} />
+
+            <h3 className="mb-2 text-lg font-bold">
+              {title}
+            </h3>
+
+            <p className="text-slate-600">
+              {text}
+            </p>
+          </div>
+        ))}
+      </section>
+
+      {/* How It Works */}
+      <section
+        id="how"
+        className="bg-slate-50 px-6 py-20 text-center"
+      >
+        <h2 className="text-3xl font-bold">
+          From observations to actionable defects
+        </h2>
+
+        <p className="mt-5 text-slate-600">
+          Submit feedback → Extract issues → Review → Create Jira tickets
+        </p>
+      </section>
+
+      {/* Security */}
+      <section
+        id="security"
+        className="mx-auto flex max-w-5xl gap-4 px-6 py-14"
+      >
+        <ShieldCheck className="shrink-0 text-clark" />
+
+        <p className="text-slate-600">
+          Human approval is required in the planned production
+          workflow. Authentication and integrations are not yet
+          enabled in this starter.
+        </p>
+      </section>
+    </main>
+  );
+}
