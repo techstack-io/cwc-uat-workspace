@@ -1,5 +1,6 @@
 
 import "./globals.css";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Space_Grotesk } from "next/font/google";
 
 const spaceGrotesk = Space_Grotesk({
@@ -16,7 +17,7 @@ export default function Layout({
   return (
     <html lang="en">
       <body className={spaceGrotesk.variable}>
-        {children}
+        <ClerkProvider>{children}</ClerkProvider>
       </body>
     </html>
   );
