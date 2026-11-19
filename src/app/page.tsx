@@ -51,7 +51,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white text-[#244855]">
       {/* Header and hero */}
-      <div className="bg-[linear-gradient(115deg,#FBE9D0_0%,#FFF8EF_18%,#FFFFFF_48%,#FFFFFF_100%)]">
+      <div className="bg-[linear-gradient(115deg,#FFFCF8_0%,#FFFFFF_55%,#FFFFFF_100%)]">
         {/* Navigation */}
         <header className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-6">
           <Link href="/" className="flex items-center gap-3">
@@ -105,7 +105,7 @@ export default function Home() {
         </header>
 
         {/* Hero */}
-        <section className="mx-auto grid max-w-7xl items-center gap-12 px-6 pb-24 pt-20 lg:grid-cols-2 lg:gap-16 lg:pt-28">
+        <section className="mx-auto grid max-w-7xl items-start gap-12 px-6 pb-24 pt-10 lg:grid-cols-2 lg:gap-16 lg:pt-16">
           {/* Hero copy */}
           <div>
             <p className="mb-7 inline-flex items-center gap-2 rounded-full border border-[#FBE9D0] bg-white/80 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-[#244855]">
@@ -114,12 +114,12 @@ export default function Home() {
             </p>
 
             <h1
-              className="max-w-2xl text-5xl font-bold leading-[1.08] tracking-tight md:text-6xl"
+              className="max-w-2xl text-5xl font-medium leading-[1.12] tracking-tight md:text-6xl"
               style={{
                 fontFamily: "var(--font-space-grotesk)",
               }}
             >
-              Turn UAT feedback
+            Turn UAT feedback
               <span className="block text-[#E64833]">
                 into Jira tickets.
               </span>
