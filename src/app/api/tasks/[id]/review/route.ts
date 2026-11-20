@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { authorizedReviewer } from "@/lib/reviewers";
-import { checklistLines, readProgress } from "../checklist/route";
+import { checklistLines, readProgress } from "@/lib/checklist";
 
 export const runtime = "nodejs";
 
