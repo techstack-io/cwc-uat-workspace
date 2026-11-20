@@ -29,8 +29,8 @@ const initial: FormData = {
   jiraKey: "",
 };
 
-const fieldClass = "w-full rounded-xl border border-[#DCE5E6] bg-white px-4 py-3 text-sm text-[#244855] outline-none transition focus:border-[#90AEAD] focus:ring-2 focus:ring-[#90AEAD]/25";
-const labelClass = "mb-2 block text-sm font-semibold text-[#244855]";
+const fieldClass = "w-full rounded-xl border border-[#DCE5E6] bg-white px-4 py-3 text-sm text-[#1E1B18] outline-none transition focus:border-[#90AEAD] focus:ring-2 focus:ring-[#90AEAD]/25";
+const labelClass = "mb-2 block text-sm font-semibold text-[#1E1B18]";
 
 export default function NewSubmissionPage() {
   const [form, setForm] = useState<FormData>(initial);
@@ -169,14 +169,14 @@ if (file.type === "image/webp") {
   }
 
   return (
-    <main className="min-h-screen bg-white text-[#244855]">
+    <main className="min-h-screen bg-white text-[#1E1B18]">
       <header className="border-b border-[#DCE5E6] bg-white">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-5">
           <Link href="/workspace" className="flex items-center gap-3 font-bold">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#244855] text-white"><FilePlus2 size={20} /></span>
             UAT Workspace
           </Link>
-          <Link href="/workspace" className="inline-flex items-center gap-2 text-sm font-semibold text-[#64748B] hover:text-[#244855]"><ArrowLeft size={16} /> Dashboard</Link>
+          <Link href="/workspace" className="inline-flex items-center gap-2 text-sm font-semibold text-[#1E1B18] hover:text-[#1E1B18]"><ArrowLeft size={16} /> Dashboard</Link>
         </div>
       </header>
 
@@ -184,13 +184,13 @@ if (file.type === "image/webp") {
         <div>
           <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-[#874F41]">Znode 10 Upgrade · UAT</p>
           <h1 className="text-3xl font-semibold tracking-tight">New UAT Submission</h1>
-          <p className="mt-2 text-sm text-[#64748B]">Document a defect, refine its expected result, and prepare a structured issue for review.</p>
+          <p className="mt-2 text-sm text-[#1E1B18]">Document a defect, refine its expected result, and prepare a structured issue for review.</p>
         </div>
 
         <div className="rounded-2xl border border-[#DCE5E6] bg-white p-6 shadow-sm sm:p-8">
           <div className="mb-7 flex flex-wrap items-center justify-between gap-3 border-b border-[#E5ECEE] pb-5">
             <h2 className="text-lg font-semibold">Issue details</h2>
-            <span className="rounded-full bg-[#E5EEEE] px-3 py-1 text-xs font-semibold text-[#244855]">{form.status}</span>
+            <span className="rounded-full bg-[#E5EEEE] px-3 py-1 text-xs font-semibold text-[#1E1B18]">{form.status}</span>
           </div>
           <div className="space-y-6">
             <div>
@@ -222,14 +222,14 @@ if (file.type === "image/webp") {
             <div>
               <label htmlFor="findings" className={labelClass}>Findings</label>
               <textarea id="findings" rows={6} className={fieldClass} value={form.findings} onChange={(e) => update("findings", e.target.value)} placeholder={"One observation per line, for example:\nFirst project link works.\nOther links return 404 errors.\nProject images are missing."} />
-              <p className="mt-2 text-xs text-[#64748B]">Enter one observation per line. These will be exported as separate findings.</p>
+              <p className="mt-2 text-xs text-[#1E1B18]">Enter one observation per line. These will be exported as separate findings.</p>
             </div>
             <div>
               <label className={labelClass}>Supporting Screenshots</label>
               <label className="flex cursor-pointer flex-col items-center gap-3 rounded-xl border-2 border-dashed border-[#DCE5E6] bg-[#F9FBFB] p-8 text-center hover:border-[#90AEAD]">
                 <UploadCloud size={30} className="text-[#90AEAD]" />
                 <span className="text-sm font-semibold">Click to upload screenshots</span>
-                <span className="text-xs text-[#64748B]">PNG, JPG or WebP · Multiple files supported</span>
+                <span className="text-xs text-[#1E1B18]">PNG, JPG or WebP · Multiple files supported</span>
                 <input type="file" accept="image/png,image/jpeg,image/webp" multiple className="sr-only" onChange={(e) => {
                   const selected = Array.from(e.target.files ?? []);
                   setScreenshots(prev => [...prev, ...selected]);
@@ -247,7 +247,7 @@ if (file.type === "image/webp") {
             <div>
               <div className="mb-2 flex items-center justify-between gap-3">
                 <label htmlFor="expected-result" className="text-sm font-semibold">Expected Result <span className="text-[#C85A3B]">*</span></label>
-                <span className={`text-xs tabular-nums ${form.expectedResult.length >= 255 ? "text-[#C85A3B]" : "text-[#64748B]"}`}>{form.expectedResult.length}/255</span>
+                <span className={`text-xs tabular-nums ${form.expectedResult.length >= 255 ? "text-[#C85A3B]" : "text-[#1E1B18]"}`}>{form.expectedResult.length}/255</span>
               </div>
               <textarea id="expected-result" rows={3} maxLength={255} className={fieldClass} value={form.expectedResult} onChange={(e) => update("expectedResult", e.target.value)} placeholder="Describe how the page should behave after the defect is fixed." />
             </div>
@@ -267,11 +267,11 @@ if (file.type === "image/webp") {
               <div>
                 <label htmlFor="jira-key" className={labelClass}>Existing Jira ticket ID</label>
                 <input id="jira-key" className={fieldClass} value={form.jiraKey} onChange={(e) => update("jiraKey", e.target.value)} placeholder="CCB-21" />
-                <p className="mt-2 text-xs text-[#64748B]">Manual reference only. This page does not create or verify Jira tickets.</p>
+                <p className="mt-2 text-xs text-[#1E1B18]">Manual reference only. This page does not create or verify Jira tickets.</p>
               </div>
             )}
-            <div className="flex items-start gap-2 rounded-xl bg-[#F5F7F8] p-4 text-xs leading-relaxed text-[#64748B]">
-              <Info size={17} className="mt-0.5 shrink-0 text-[#244855]" />
+            <div className="flex items-start gap-2 rounded-xl bg-[#F5F7F8] p-4 text-xs leading-relaxed text-[#1E1B18]">
+              <Info size={17} className="mt-0.5 shrink-0 text-[#1E1B18]" />
               <p>This is a frontend-only preview. Status changes are not persisted. “Submitted to Jira” means you are recording an existing ticket reference, not submitting a new ticket.</p>
             </div>
           </div>
@@ -280,7 +280,7 @@ if (file.type === "image/webp") {
         {error && <p role="alert" className="rounded-xl border border-[#C85A3B]/30 bg-[#C85A3B]/5 px-4 py-3 text-sm text-[#9E3B24]">{error}</p>}
         <div className="flex flex-wrap items-center justify-end gap-3">
           <Link href="/workspace" className="rounded-xl border border-[#DCE5E6] bg-white px-5 py-3 text-sm font-semibold hover:bg-[#E5EEEE]">Back to Dashboard</Link>
-          <button type="button" onClick={downloadWord} disabled={exporting} className="inline-flex items-center gap-2 rounded-xl border border-[#244855] bg-white px-5 py-3 text-sm font-bold text-[#244855] hover:bg-[#E5EEEE] disabled:opacity-50">
+          <button type="button" onClick={downloadWord} disabled={exporting} className="inline-flex items-center gap-2 rounded-xl border border-[#244855] bg-white px-5 py-3 text-sm font-bold text-[#1E1B18] hover:bg-[#E5EEEE] disabled:opacity-50">
             <FileDown size={18} />{exporting ? "Generating Word..." : "Download Word (.docx)"}
           </button>
           <button type="button" onClick={copyIssue} className="inline-flex items-center gap-2 rounded-xl bg-[#E64833] px-5 py-3 text-sm font-bold text-white hover:bg-[#C83B29]">
