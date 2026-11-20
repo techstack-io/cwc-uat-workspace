@@ -15,9 +15,12 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   if (!body || typeof body !== "object" || Array.isArray(body)) {
     return NextResponse.json({ error: "Invalid decision" }, { status: 400 });
   }
-  const { decision, comment } = body as Record<string, unknown>;
+  const { decision, comment, criteriaReviewed } = body as Record<string, unknown>;
   if (!["Approved", "Changes Requested"].includes(String(decision)) || typeof comment !== "string" || comment.length > 2000) {
     return NextResponse.json({ error: "Invalid review fields" }, { status: 400 });
+  }
+  if (decision === "Approved" && criteriaReviewed !== true) {
+    return NextResponse.json({ error: "Confirm you reviewed the task details and acceptance criteria" }, { status: 400 });
   }
   if (decision === "Changes Requested" && !comment.trim()) {
     return NextResponse.json({ error: "Please explain the requested changes" }, { status: 400 });
