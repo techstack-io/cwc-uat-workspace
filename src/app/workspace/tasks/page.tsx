@@ -173,6 +173,8 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
   const { user } = useUser();
   const myEmail = user?.emailAddresses.find((e) => e.verification?.status === "verified" && ["dan.collins@clarkwire.com", "shane.collins@clarkwire.com"].includes(e.emailAddress.toLowerCase()))?.emailAddress.toLowerCase();
   const [reviewComments, setReviewComments] = useState<Record<string, string>>({});
+  const [reviewingId, setReviewingId] = useState<string | null>(null);
+  const [criteriaReviewed, setCriteriaReviewed] = useState(false);
   const [hasLocalTasks, setHasLocalTasks] = useState(false);
 
   useEffect(() => {
@@ -227,7 +229,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
       const response = await fetch(`/api/tasks/${encodeURIComponent(task.id)}/review`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ decision, comment: reviewComments[task.id] || "" }),
+        body: JSON.stringify({ decision, comment: reviewComments[task.id] || "", criteriaReviewed: decision === "Approved" ? criteriaReviewed : false }),
       });
       if (!response.ok) {
         const result = await response.json();
@@ -236,6 +238,8 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
       const updated: Task = await response.json();
       setTasks((current) => (current ?? []).map((item) => item.id === task.id ? updated : item));
       setNotice(`Task ${decision.toLowerCase()}.`);
+      setReviewingId(null);
+      setCriteriaReviewed(false);
       setError("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to save review.");
@@ -297,6 +301,13 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
     }
   }
 
+  function openReview(task: Task) {
+    setReviewingId(task.id);
+    setCriteriaReviewed(false);
+    setError("");
+  }
+
+  const reviewingTask = tasks?.find((task) => task.id === reviewingId);
   const completed = tasks?.filter((task) => task.status === "Done").length ?? 0;
   const visible = tasks?.filter((task) => filter === "All" || (task.status === "Done") === (filter === "Completed"));
 
@@ -378,6 +389,49 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
         </form>
       )}
 
+      {reviewingTask && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1E1B18]/60 p-4" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) setReviewingId(null); }}>
+          <section role="dialog" aria-modal="true" aria-labelledby="review-task-title" className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl sm:p-8">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest text-[#874F41]">Review before approval</p>
+                <h2 id="review-task-title" className="mt-2 text-xl font-semibold">{reviewingTask.title}</h2>
+              </div>
+              <button type="button" disabled={busy} onClick={() => setReviewingId(null)} className="rounded-lg border border-[#DCE5E6] px-3 py-2 text-sm font-semibold">Close</button>
+            </div>
+            <p className="mt-3 text-sm text-[#244855]">{[reviewingTask.area, reviewingTask.assignee && `Assigned to ${reviewingTask.assignee}`, reviewingTask.jiraKey].filter(Boolean).join(" · ")}</p>
+            <div className="mt-6 space-y-5 text-sm">
+              {([
+                ["Description", reviewingTask.description],
+                ["Expected result", reviewingTask.expectedResult],
+                ["Acceptance criteria", reviewingTask.acceptanceCriteria],
+                ["Tester findings / root cause", reviewingTask.rootCause],
+                ["Platform", reviewingTask.platform],
+                ["Browser", reviewingTask.browser],
+              ] as const).map(([label, value]) => (
+                <div key={label}>
+                  <h3 className="font-bold">{label}</h3>
+                  <p className="mt-1 whitespace-pre-wrap break-words text-[#1E1B18]">{value?.trim() || "Not provided"}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 border-t border-[#DCE5E6] pt-5">
+              <label className="flex items-start gap-3 text-sm font-medium">
+                <input type="checkbox" checked={criteriaReviewed} onChange={(event) => setCriteriaReviewed(event.target.checked)} className="mt-1 h-4 w-4 accent-[#E64833]" />
+                I have reviewed the task details, expected result, and acceptance criteria.
+              </label>
+              <label className="mt-5 block text-sm font-semibold">Review comment
+                <textarea rows={3} maxLength={2000} className={field} placeholder="Required when requesting changes" value={reviewComments[reviewingTask.id] || ""} onChange={(event) => setReviewComments((current) => ({ ...current, [reviewingTask.id]: event.target.value }))} />
+              </label>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <button type="button" disabled={busy || !criteriaReviewed} className={primary + " disabled:cursor-not-allowed disabled:opacity-50"} onClick={() => void reviewTask(reviewingTask, "Approved")}>Approve</button>
+                <button type="button" disabled={busy || !(reviewComments[reviewingTask.id] || "").trim()} className="rounded-xl border border-[#BFCFD2] px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50" onClick={() => void reviewTask(reviewingTask, "Changes Requested")}>Request changes</button>
+              </div>
+            </div>
+          </section>
+        </div>
+      )}
+
       {tasks && (
         <section className={card} aria-labelledby="task-list-heading">
           <div className="flex flex-wrap items-center justify-between gap-4">
@@ -418,11 +472,9 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
                     )}
                     {task.reviewComment && <p className="mt-1 text-sm">Review comment: {task.reviewComment}</p>}
                     {task.approvalStatus === "Pending Approval" && myEmail === task.reviewerEmail && (
-                      <div className="mt-3 flex flex-wrap items-center gap-2">
-                        <input className={field + " !mt-0 max-w-sm"} aria-label="Review comment" placeholder="Comment (required for changes)" value={reviewComments[task.id] || ""} onChange={(event) => setReviewComments((current) => ({ ...current, [task.id]: event.target.value }))} />
-                        <button type="button" disabled={busy} className={primary} onClick={() => void reviewTask(task, "Approved")}>Approve</button>
-                        <button type="button" disabled={busy || !(reviewComments[task.id] || "").trim()} className="rounded-xl border border-[#BFCFD2] px-3 py-2 text-sm font-semibold disabled:opacity-50" onClick={() => void reviewTask(task, "Changes Requested")}>Request changes</button>
-                      </div>
+                      <button type="button" disabled={busy || Boolean(form)} className="mt-3 rounded-xl border border-[#244855] px-4 py-2 text-sm font-semibold text-[#244855] hover:bg-[#E5EEEE] disabled:opacity-50" onClick={() => openReview(task)}>
+                        Review task
+                      </button>
                     )}
                   </div>
                   <span className="shrink-0 rounded-md bg-[#EDF2F3] px-2 py-1 text-xs font-semibold">{task.status}</span>
