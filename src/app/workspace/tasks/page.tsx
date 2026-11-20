@@ -254,7 +254,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
         const response = await fetch("/api/tasks", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(item),
+          body: JSON.stringify({ ...blank, ...item, reviewerEmail: "dan.collins@clarkwire.com", rootCause: "" }),
         });
         if (!response.ok) throw new Error("Import stopped; some tasks may have been imported.");
         imported.push(await response.json());
@@ -413,8 +413,6 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
                         <button type="button" disabled={busy || !(reviewComments[task.id] || "").trim()} className="rounded-xl border border-[#BFCFD2] px-3 py-2 text-sm font-semibold disabled:opacity-50" onClick={() => void reviewTask(task, "Changes Requested")}>Request changes</button>
                       </div>
                     )}
-                    <p className="hidden">
-                    </p>
                   </div>
                   <span className="shrink-0 rounded-md bg-[#EDF2F3] px-2 py-1 text-xs font-semibold">{task.status}</span>
                 </li>
