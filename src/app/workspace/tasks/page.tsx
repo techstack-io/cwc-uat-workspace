@@ -159,31 +159,81 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
   const [filter, setFilter] = useState<"All" | "Open" | "Completed">("All");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [hasLocalTasks, setHasLocalTasks] = useState(false);
 
   useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem(storageKey);
-      const parsed: unknown = saved ? JSON.parse(saved) : [];
-      if (!Array.isArray(parsed)) throw new Error("Invalid task list");
-      setTasks(parsed);
-    } catch {
-      setError("Saved tasks could not be loaded from this browser.");
+    let cancelled = false;
+    async function load() {
+      try {
+        const response = await fetch("/api/tasks", { cache: "no-store" });
+        if (!response.ok) throw new Error("Unable to load tasks from Neon.");
+        const result: Task[] = await response.json();
+        if (!cancelled) {
+          setTasks(result);
+          setError("");
+          try {
+            const saved = JSON.parse(window.localStorage.getItem(storageKey) || "[]");
+            setHasLocalTasks(Array.isArray(saved) && saved.length > 0);
+          } catch { setHasLocalTasks(false); }
+        }
+      } catch {
+        if (!cancelled) setError("Could not load tasks from the database. Please retry.");
+      }
     }
+    void load();
+    return () => { cancelled = true; };
   }, [storageKey]);
 
-  function persist(change: (current: Task[]) => Task[]) {
+  async function writeTask(task: Task, isEditing: boolean) {
+    setBusy(true);
     try {
-      const saved = window.localStorage.getItem(storageKey);
-      const next = change(saved ? JSON.parse(saved) : []);
-      window.localStorage.setItem(storageKey, JSON.stringify(next));
-      setTasks(next);
+      const response = await fetch(isEditing ? `/api/tasks/${encodeURIComponent(task.id)}` : "/api/tasks", {
+        method: isEditing ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(task),
+      });
+      if (!response.ok) throw new Error("Unable to save task.");
+      const saved: Task = await response.json();
+      setTasks((current) => isEditing
+        ? (current ?? []).map((item) => item.id === saved.id ? saved : item)
+        : [saved, ...(current ?? [])]);
       setError("");
       return true;
     } catch {
-      setNotice("");
-      setError("Your change could not be saved in this browser.");
+      setError("Task could not be saved to the database. Please retry.");
       return false;
+    } finally {
+      setBusy(false);
     }
+  }
+
+  async function importLocalTasks() {
+    if (!window.confirm("Import tasks from this browser into Neon? Existing database tasks will be kept.")) return;
+    let saved: unknown;
+    try { saved = JSON.parse(window.localStorage.getItem(storageKey) || "[]"); }
+    catch { setError("Browser tasks could not be read."); return; }
+    if (!Array.isArray(saved)) return;
+    setBusy(true);
+    try {
+      const imported: Task[] = [];
+      for (const item of saved) {
+        const response = await fetch("/api/tasks", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(item),
+        });
+        if (!response.ok) throw new Error("Import stopped; some tasks may have been imported.");
+        imported.push(await response.json());
+      }
+      setTasks((current) => [...imported, ...(current ?? [])]);
+      window.localStorage.removeItem(storageKey);
+      setHasLocalTasks(false);
+      setNotice(`Imported ${imported.length} task(s) into Neon.`);
+      setError("");
+    } catch {
+      setError("Import stopped. Existing browser tasks were retained. Check for duplicates before retrying.");
+    } finally { setBusy(false); }
   }
 
   function openForm(task?: Task) {
@@ -196,7 +246,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
     setForm((current) => current && { ...current, [key]: value });
   }
 
-  function save(event: FormEvent<HTMLFormElement>) {
+  async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!form || !form.title.trim()) return;
     const task: Task = {
@@ -205,9 +255,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
       title: form.title.trim(),
       jiraKey: form.jiraKey.trim().toUpperCase(),
     };
-    const saved = persist((current) => editing
-      ? current.map((item) => item.id === editing ? task : item)
-      : [task, ...current]);
+    const saved = await writeTask(task, Boolean(editing));
     if (saved) {
       setForm(null);
       setFilter("All");
@@ -223,9 +271,10 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-sm font-semibold">{tasks && `${completed} of ${tasks.length} completed`}</p>
-          <p className="text-sm text-[#516879]">Tasks are saved in this browser.</p>
+          <p className="text-sm text-[#516879]">Tasks are saved in Neon for your account.</p>
+          {hasLocalTasks && <button type="button" disabled={busy} className="mt-2 text-sm font-semibold text-[#E64833] underline disabled:opacity-50" onClick={() => void importLocalTasks()}>Import tasks saved in this browser</button>}
         </div>
-        {tasks && !form && <button type="button" className={primary} onClick={() => openForm()}><Plus size={17} /> New task</button>}
+        {tasks && !form && <button type="button" disabled={busy} className={primary} onClick={() => openForm()}><Plus size={17} /> New task</button>}
       </div>
 
       {error && <p role="alert" className="text-sm font-medium text-red-800">{error}</p>}
@@ -276,7 +325,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
             </div>
           </div>
           <div className="mt-6 flex items-center gap-4">
-            <button className={primary} type="submit">Save task</button>
+            <button className={primary} type="submit" disabled={busy}>{busy ? "Saving…" : "Save task"}</button>
             <button type="button" className="text-sm font-semibold hover:underline" onClick={() => setForm(null)}>Cancel</button>
           </div>
         </form>
@@ -300,10 +349,10 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
               {visible.map((task) => (
                 <li key={task.id} className="flex items-start gap-3 py-4">
                   <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-[#E64833]"
-                    aria-label={`Complete ${task.title}`} checked={task.status === "Done"} disabled={Boolean(form)}
-                    onChange={(event) => {
+                    aria-label={`Complete ${task.title}`} checked={task.status === "Done"} disabled={Boolean(form) || busy}
+                    onChange={async (event) => {
                       const status = event.target.checked ? "Done" : "To do";
-                      if (persist((current) => current.map((item) => item.id === task.id ? { ...item, status } : item))) {
+                      if (await writeTask({ ...task, status }, true)) {
                         setNotice(status === "Done" ? "Task completed." : "Task reopened.");
                       }
                     }} />
