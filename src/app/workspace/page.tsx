@@ -28,7 +28,7 @@ export default function WorkspaceDashboard() {
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-5">
                     <Link href="/" className="flex items-center">
           <Image
-            src="/uat-logo.png"
+            src="/uat-logo-2.png"
             alt="UAT Workspace"
             width={280}
             height={80}
