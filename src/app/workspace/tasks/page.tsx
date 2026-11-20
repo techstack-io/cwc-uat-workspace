@@ -197,7 +197,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
     return () => { cancelled = true; };
   }, [storageKey]);
 
-  async function writeTask(task: Task, isEditing: boolean) {
+  async function writeTask(task: TaskFields & { id: string }, isEditing: boolean) {
     setBusy(true);
     try {
       const response = await fetch(isEditing ? `/api/tasks/${encodeURIComponent(task.id)}` : "/api/tasks", {
@@ -282,7 +282,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!form || !form.title.trim()) return;
-    const task: Task = {
+    const task: TaskFields & { id: string } = {
       ...form,
       id: editing ?? crypto.randomUUID(),
       title: form.title.trim(),
