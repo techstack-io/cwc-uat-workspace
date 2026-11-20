@@ -53,7 +53,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white text-[#244855]">
       {/* Header and hero */}
-     <div className="bg-white">
+     <div className="bg-white shadow-[0px_4px_16px_rgba(17,17,26,0.1),_0px_8px_24px_rgba(17,17,26,0.1),_0px_16px_56px_rgba(17,17,26,0.1)]">
         {/* Navigation */}
         <header className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-6">
           <Link href="/" className="flex items-center">
