@@ -58,7 +58,7 @@ export default function Home() {
         <header className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-6">
           <Link href="/" className="flex items-center">
           <Image
-            src="/uat-logo.png"
+            src="/uat-logo-2.png"
             alt="UAT Workspace"
             width={280}
             height={80}
