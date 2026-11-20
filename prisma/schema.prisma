@@ -23,10 +23,18 @@ model Task {
   jiraKey        String   @default("")
   platform       String   @default("")
   browser        String   @default("")
+  reviewerEmail  String   @default("dan.collins@clarkwire.com")
+  approvalStatus String   @default("Pending Approval")
+  reviewedBy     String   @default("")
+  reviewedAt     DateTime?
+  reviewComment  String   @default("")
+  rootCause      String   @default("")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
   @@index([workspaceId])
   @@index([createdBy])
   @@index([status])
+  @@index([reviewerEmail])
+  @@index([approvalStatus])
 }
