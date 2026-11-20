@@ -12,6 +12,7 @@ import {
 const nav = [
   { label: "Overview", href: "/workspace", Icon: LayoutDashboard, active: true },
   { label: "New Submission", href: "/workspace/new", Icon: FilePlus2, active: false },
+  { label: "Tasks", href: "/workspace/tasks", Icon: ListChecks, active: false },
 ];
 const metrics = [
   { label: "Submissions", Icon: ClipboardCheck },
