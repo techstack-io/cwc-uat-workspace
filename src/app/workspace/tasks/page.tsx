@@ -34,7 +34,8 @@ const blank: TaskFields = {
 };
 
 const card = "rounded-2xl border border-[#DCE5E6] bg-white p-5 shadow-sm sm:p-6";
-const primary = "inline-flex items-center gap-2 rounded-xl bg-[#244855] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#183641]";
+const primary =
+  "inline-flex items-center gap-2 rounded-xl bg-[#E64833] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#C83B29]";
 const field = "mt-1.5 block w-full rounded-lg border border-[#BFCFD2] bg-white px-3 py-2 text-sm font-normal text-[#244855] focus-visible:outline-[#244855]";
 const textFields = [
   { key: "assignee", label: "Assignee" },
@@ -46,7 +47,7 @@ export default function TasksPage() {
   const { user } = useUser();
 
   return (
-    <main className="min-h-screen bg-[#F5F7F8] text-[#244855]">
+    <main className="min-h-screen bg-white text-[#244855]">
       <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8">
         <Link href="/workspace" className="inline-flex items-center gap-2 text-sm font-semibold hover:underline">
           <ArrowLeft size={16} /> Workspace overview
