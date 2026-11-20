@@ -9,6 +9,7 @@ export type TaskInput = {
   title: string;
   description: string;
   expectedResult: string;
+  acceptanceCriteria: string;
   area: string;
   priority: string;
   status: string;
@@ -25,7 +26,7 @@ export function parseTaskInput(value: unknown): TaskInput | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const raw = value as Record<string, unknown>;
   const keys = [
-    "title", "description", "expectedResult", "area", "priority",
+    "title", "description", "expectedResult", "acceptanceCriteria", "area", "priority",
     "status", "assignee", "dueDate", "jiraKey", "platform", "browser",
     "reviewerEmail", "rootCause",
   ] as const;
@@ -33,6 +34,7 @@ export function parseTaskInput(value: unknown): TaskInput | null {
   const data = Object.fromEntries(keys.map((key) => [key, raw[key]])) as TaskInput;
   data.title = data.title.trim();
   data.jiraKey = data.jiraKey.trim().toUpperCase();
+  if (data.acceptanceCriteria.length > 10000) return null;
   if (!data.title || data.title.length > 160 || data.expectedResult.length > 255) return null;
   if (!taskAreas.includes(data.area as typeof taskAreas[number])) return null;
   if (!taskPriorities.includes(data.priority as typeof taskPriorities[number])) return null;
