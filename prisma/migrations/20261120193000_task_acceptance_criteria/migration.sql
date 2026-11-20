@@ -1,0 +1,1 @@
+ALTER TABLE "Task" ADD COLUMN "acceptanceCriteria" TEXT NOT NULL DEFAULT '';

@@ -15,6 +15,7 @@ model Task {
   title          String
   description    String   @default("")
   expectedResult String   @default("")
+  acceptanceCriteria String @default("")
   area           String   @default("Content & Forms")
   priority       String   @default("Medium")
   status         String   @default("To do")

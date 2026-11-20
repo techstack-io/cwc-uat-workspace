@@ -25,7 +25,8 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     }
     const resetApproval = existing.approvalStatus === "Changes Requested" || existing.reviewerEmail !== data.reviewerEmail ||
       existing.title !== data.title || existing.description !== data.description ||
-      existing.expectedResult !== data.expectedResult;
+      existing.expectedResult !== data.expectedResult ||
+      existing.acceptanceCriteria !== data.acceptanceCriteria;
     const updated = await prisma.task.updateMany({
       where: { id, workspaceId, createdBy: actor.userId, updatedAt: existing.updatedAt },
       data: {

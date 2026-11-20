@@ -17,6 +17,7 @@ type TaskFields = {
   title: string;
   description: string;
   expectedResult: string;
+  acceptanceCriteria: string;
   area: (typeof areas)[number];
   priority: (typeof priorities)[number];
   status: (typeof statuses)[number];
@@ -38,7 +39,7 @@ type Task = TaskFields & {
 };
 
 const blank: TaskFields = {
-  title: "", description: "", expectedResult: "", area: "Content & Forms",
+  title: "", description: "", expectedResult: "", acceptanceCriteria: "", area: "Content & Forms",
   priority: "Medium", status: "To do", assignee: "", dueDate: "", jiraKey: "",
   platform: "", browser: "", reviewerEmail: "dan.collins@clarkwire.com", rootCause: "",
 };
@@ -254,7 +255,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
         const response = await fetch("/api/tasks", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...blank, ...item, reviewerEmail: "dan.collins@clarkwire.com", rootCause: "" }),
+          body: JSON.stringify({ ...blank, ...item, acceptanceCriteria: "", reviewerEmail: "dan.collins@clarkwire.com", rootCause: "" }),
         });
         if (!response.ok) throw new Error("Import stopped; some tasks may have been imported.");
         imported.push(await response.json());
@@ -326,6 +327,10 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
               </label>
               <label className="block">Expected result
                 <textarea className={field} rows={3} maxLength={255} value={form.expectedResult} onChange={(event) => update("expectedResult", event.target.value)} />
+              </label>
+              <label className="block">Acceptance Criteria
+                <textarea className={field} rows={5} maxLength={10000} value={form.acceptanceCriteria} onChange={(event) => update("acceptanceCriteria", event.target.value)} placeholder={"List measurable conditions, one per line.\n• First slide advances automatically\n• Manual navigation works\n• Desktop and mobile retested"} />
+                <span className="mt-1 block text-xs font-normal text-[#1E1B18]">Conditions to verify before marking the task complete.</span>
               </label>
               <label className="block">Root Cause (if known)
                 <textarea className={field} rows={3} value={form.rootCause} onChange={(event) => update("rootCause", event.target.value)} placeholder="Leave blank until confirmed." />
@@ -405,6 +410,12 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
                     </p>
                     <p className="mt-1 text-xs font-semibold">Review: {task.approvalStatus} · Assigned to {task.reviewerEmail === "shane.collins@clarkwire.com" ? "Shane" : "Dan"}</p>
                     {task.approvalStatus === "Approved" && <p className="mt-1 text-xs font-semibold text-[#244855]">Ready for Jira</p>}
+                    {task.acceptanceCriteria && (
+                      <div className="mt-3 rounded-lg border border-[#DCE5E6] bg-white p-3">
+                        <p className="text-xs font-bold uppercase tracking-wide">Acceptance Criteria</p>
+                        <p className="mt-1 whitespace-pre-wrap break-words text-sm text-[#1E1B18]">{task.acceptanceCriteria}</p>
+                      </div>
+                    )}
                     {task.reviewComment && <p className="mt-1 text-sm">Review comment: {task.reviewComment}</p>}
                     {task.approvalStatus === "Pending Approval" && myEmail === task.reviewerEmail && (
                       <div className="mt-3 flex flex-wrap items-center gap-2">
