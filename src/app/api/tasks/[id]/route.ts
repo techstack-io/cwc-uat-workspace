@@ -1,14 +1,14 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { parseTaskInput } from "@/lib/task-validation";
+import { authorizedReviewer } from "@/lib/reviewers";
 
 export const runtime = "nodejs";
 const workspaceId = "clark";
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const actor = await authorizedReviewer();
+  if (!actor) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const { id } = await context.params;
   let body: unknown;
   try { body = await request.json(); } catch {
@@ -17,13 +17,27 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   const data = parseTaskInput(body);
   if (!data) return NextResponse.json({ error: "Invalid task fields" }, { status: 400 });
   try {
-    const result = await prisma.task.updateMany({
-      where: { id, workspaceId, createdBy: userId },
-      data,
+    const existing = await prisma.task.findFirst({ where: { id, workspaceId } });
+    if (!existing) return NextResponse.json({ error: "Task not found" }, { status: 404 });
+    if (existing.createdBy !== actor.userId) return NextResponse.json({ error: "Only the creator may edit this task" }, { status: 403 });
+    if (data.status === "Done" && existing.approvalStatus !== "Approved") {
+      return NextResponse.json({ error: "Approve the task before marking it complete" }, { status: 409 });
+    }
+    const resetApproval = existing.reviewerEmail !== data.reviewerEmail ||
+      existing.title !== data.title || existing.description !== data.description ||
+      existing.expectedResult !== data.expectedResult;
+    const updated = await prisma.task.updateMany({
+      where: { id, workspaceId, createdBy: actor.userId, updatedAt: existing.updatedAt },
+      data: {
+        ...data,
+        ...(resetApproval ? {
+          approvalStatus: "Pending Approval", reviewedBy: "", reviewedAt: null, reviewComment: "",
+          status: data.status === "Done" ? "To do" : data.status,
+        } : {}),
+      },
     });
-    if (!result.count) return NextResponse.json({ error: "Task not found" }, { status: 404 });
-    const task = await prisma.task.findFirst({ where: { id, workspaceId, createdBy: userId } });
-    return NextResponse.json(task);
+    if (!updated.count) return NextResponse.json({ error: "Task changed; refresh and retry" }, { status: 409 });
+    return NextResponse.json(await prisma.task.findFirst({ where: { id, workspaceId } }));
   } catch {
     return NextResponse.json({ error: "Unable to update task" }, { status: 500 });
   }
