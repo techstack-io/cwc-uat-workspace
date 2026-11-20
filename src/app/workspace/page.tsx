@@ -23,7 +23,7 @@ const metrics = [
 
 export default function WorkspaceDashboard() {
   return (
-    <main className="min-h-screen bg-[#F5F7F8] text-[#244855]">
+    <main className="min-h-screen bg-white text-[#244855]">
       <header className="border-b border-[#DCE5E6] bg-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-5">
                     <Link href="/" className="flex items-center">
