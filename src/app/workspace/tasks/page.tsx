@@ -1,7 +1,8 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
-import { ArrowLeft, Plus } from "lucide-react";
+import { useUser, SignOutButton } from "@clerk/nextjs";
+import Image from "next/image";
+import { Plus, LogOut, ClipboardCheck, LayoutDashboard, FilePlus2, ListChecks, Inbox, Ticket, Settings2, Plug } from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, useEffect, useState } from "react";
 
@@ -34,32 +35,118 @@ const blank: TaskFields = {
 };
 
 const card = "rounded-2xl border border-[#DCE5E6] bg-white p-5 shadow-sm sm:p-6";
-const primary =
-  "inline-flex items-center gap-2 rounded-xl bg-[#E64833] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#C83B29]";
-const field = "mt-1.5 block w-full rounded-lg border border-[#BFCFD2] bg-white px-3 py-2 text-sm font-normal text-[#244855] focus-visible:outline-[#244855]";
+const primary = "inline-flex items-center gap-2 rounded-xl bg-[#E64833] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#C83B29]";
+const field = "mt-1.5 block w-full rounded-lg border border-[#BFCFD2] bg-white px-3 py-2 text-sm font-normal text-[#244855] focus-visible:outline-[#E64833]";
 const textFields = [
   { key: "assignee", label: "Assignee" },
   { key: "platform", label: "Platform" },
   { key: "browser", label: "Web browser" },
 ] as const;
 
+const navigation = [
+  { label: "Overview", href: "/workspace", Icon: LayoutDashboard },
+  { label: "New Submission", href: "/workspace/new", Icon: FilePlus2 },
+  { label: "Tasks", href: "/workspace/tasks", Icon: ListChecks },
+];
+
 export default function TasksPage() {
   const { user } = useUser();
 
   return (
     <main className="min-h-screen bg-white text-[#244855]">
-      <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8">
-        <Link href="/workspace" className="inline-flex items-center gap-2 text-sm font-semibold hover:underline">
-          <ArrowLeft size={16} /> Workspace overview
-        </Link>
-        <h1 className="mt-5 text-3xl font-semibold tracking-tight">UAT Tasks</h1>
-        <p className="mt-2 text-sm text-[#516879]">
-          Test on the{" "}
-          <a className="font-semibold underline" href="https://webstore-cwac-np.znodecorp.com/" target="_blank" rel="noreferrer">
-            Znode 10 staging webstore
-          </a>.
-        </p>
-        {user ? <TaskWorkspace key={user.id} storageKey={`cwc-uat-tasks-v1:${user.id}`} /> : <p role="status" className="mt-6 text-sm">Loading tasks…</p>}
+      <header className="border-b border-[#DCE5E6] bg-white">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-5">
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/uat-logo.png"
+              alt="UAT Workspace"
+              width={280}
+              height={80}
+              className="h-auto w-[220px] sm:w-[300px] xl:w-[350px]"
+              priority
+            />
+          </Link>
+          <div className="flex items-center gap-4">
+            <span className="hidden text-xs font-semibold uppercase tracking-widest text-[#64748B] sm:inline">
+              Administrator workspace
+            </span>
+            <SignOutButton redirectUrl="/">
+              <button type="button" className="inline-flex items-center gap-2 rounded-xl border border-[#DCE5E6] px-4 py-2 text-sm font-semibold hover:bg-[#F5F7F8]">
+                <LogOut size={16} /> Log Out
+              </button>
+            </SignOutButton>
+          </div>
+        </div>
+      </header>
+
+      <div className="mx-auto grid max-w-7xl gap-8 px-6 py-10 md:grid-cols-[220px_minmax(0,1fr)]">
+        <aside className="self-start md:sticky md:top-6" aria-label="Workspace navigation">
+          <div className="rounded-2xl border border-[#DCE5E6] bg-white p-3 shadow-sm">
+            <div className="flex items-center gap-3 px-3 py-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#244855] text-white">
+                <ClipboardCheck size={20} />
+              </div>
+              <div>
+                <p className="text-sm font-bold">Clark UAT</p>
+                <p className="text-xs text-[#64748B]">Znode 10 Upgrade</p>
+              </div>
+            </div>
+            <div className="my-3 border-t border-[#E5ECEE]" />
+            <p className="mb-3 px-3 text-[11px] font-bold uppercase tracking-[0.16em] text-[#874F41]">Workspace</p>
+            {navigation.map(({ label, href, Icon }) => {
+              const active = href === "/workspace/tasks";
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  aria-current={active ? "page" : undefined}
+                  className={`mb-1 flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition-colors ${active ? "bg-[#E5EEEE] text-[#244855]" : "text-[#64748B] hover:bg-[#F5F7F8] hover:text-[#244855]"}`}
+                >
+                  <Icon size={18} /> {label}
+                </Link>
+              );
+            })}
+            <div className="my-4 border-t border-[#E5ECEE]" />
+            <p className="mb-3 px-3 text-[11px] font-bold uppercase tracking-[0.16em] text-[#874F41]">Issue Management</p>
+            {[
+              { label: "Submissions", Icon: Inbox },
+              { label: "Review Queue", Icon: ListChecks },
+              { label: "Support Tickets", Icon: Ticket },
+            ].map(({ label, Icon }) => (
+              <div key={label} aria-disabled="true" className="flex items-center justify-between gap-2 rounded-xl px-3 py-3 text-sm text-[#94A3B8]">
+                <div className="flex items-center gap-3"><Icon size={18} /><span>{label}</span></div>
+                <span className="text-[10px]">Soon</span>
+              </div>
+            ))}
+            <div className="my-4 border-t border-[#E5ECEE]" />
+            <p className="mb-3 px-3 text-[11px] font-bold uppercase tracking-[0.16em] text-[#874F41]">Administration</p>
+            {[
+              { label: "Settings", Icon: Settings2 },
+              { label: "Integrations", Icon: Plug },
+            ].map(({ label, Icon }) => (
+              <div key={label} aria-disabled="true" className="flex items-center justify-between gap-2 rounded-xl px-3 py-3 text-sm text-[#94A3B8]">
+                <div className="flex items-center gap-3"><Icon size={18} /><span>{label}</span></div>
+                <span className="text-[10px]">Soon</span>
+              </div>
+            ))}
+          </div>
+        </aside>
+
+        <section className="min-w-0">
+          <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-[#874F41]">Znode 10 upgrade · UAT</p>
+          <h1 className="text-3xl font-light tracking-tight md:text-[30px]">UAT Tasks</h1>
+          <p className="mt-3 text-sm text-[#64748B]">
+            Test on the{" "}
+            <a className="font-semibold underline" href="https://webstore-cwac-np.znodecorp.com/" target="_blank" rel="noreferrer">
+              Znode 10 staging webstore
+            </a>.
+          </p>
+          {user ? (
+            <TaskWorkspace key={user.id} storageKey={`cwc-uat-tasks-v1:${user.id}`} />
+          ) : (
+            <p role="status" className="mt-6 text-sm">Loading tasks…</p>
+          )}
+        </section>
       </div>
     </main>
   );
@@ -212,7 +299,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
             <ul className="mt-4 divide-y divide-[#DCE5E6]">
               {visible.map((task) => (
                 <li key={task.id} className="flex items-start gap-3 py-4">
-                  <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-[#244855]"
+                  <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-[#E64833]"
                     aria-label={`Complete ${task.title}`} checked={task.status === "Done"} disabled={Boolean(form)}
                     onChange={(event) => {
                       const status = event.target.checked ? "Done" : "To do";
