@@ -53,7 +53,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white text-[#244855]">
       {/* Header and hero */}
-     <div className="bg-white shadow-[0px_4px_16px_rgba(17,17,26,0.1),_0px_8px_24px_rgba(17,17,26,0.1),_0px_16px_56px_rgba(17,17,26,0.1)]">
+     <div className="bg-white">
         {/* Navigation */}
         <header className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-6">
           <Link href="/" className="flex items-center">
@@ -149,7 +149,7 @@ export default function Home() {
           </div>
 
           {/* Workspace preview */}
-          <div className="rounded-3xl border border-[#90AEAD]/35 bg-white p-5 shadow-xl shadow-[#244855]/10 sm:p-7">
+          <div className="rounded-3xl border border-[#90AEAD]/35 bg-white p-5 shadow-[0px_4px_16px_rgba(17,17,26,0.1),_0px_8px_24px_rgba(17,17,26,0.1),_0px_16px_56px_rgba(17,17,26,0.1)] sm:p-7">
             <div className="mb-6 flex items-center justify-between gap-3">
               <div>
                 <p className="mb-1 text-xs font-bold uppercase tracking-[0.16em] text-[#874F41]">
