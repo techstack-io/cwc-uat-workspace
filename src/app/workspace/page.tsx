@@ -5,7 +5,7 @@ import { SignOutButton } from "@clerk/nextjs";
 import {
   ArrowRight, ClipboardCheck, FilePlus2, LayoutDashboard,
   ListChecks, Ticket, Clock3, CheckCircle2, LogOut,
-  Database, ShieldCheck
+  Database, ShieldCheck, Inbox, Settings2, Plug,
 } from "lucide-react";
 
 const nav = [
@@ -38,16 +38,98 @@ export default function WorkspaceDashboard() {
       </header>
 
       <div className="mx-auto grid max-w-7xl gap-8 px-6 py-10 md:grid-cols-[220px_minmax(0,1fr)]">
-        <aside className="space-y-2" aria-label="Workspace navigation">
-          <p className="mb-4 px-3 text-xs font-bold uppercase tracking-[0.18em] text-[#874F41]">Workspace</p>
-          {nav.map(({label,href,Icon,active}) => (
-            <Link key={href} href={href} aria-current={active ? "page" : undefined} className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${active ? "bg-[#E5EEEE] text-[#244855]" : "text-[#64748B] hover:bg-white hover:text-[#244855]"}`}>
-              <Icon size={18}/>{label}
-            </Link>
-          ))}
-          <div className="mt-8 rounded-xl border border-[#DCE5E6] bg-white p-4 text-xs leading-relaxed text-[#64748B]">
-            <ShieldCheck className="mb-2 text-[#90AEAD]" size={22}/>
-            Protected with Clerk. Issue storage and Jira integration are not connected yet.
+        <aside
+          className="self-start md:sticky md:top-6"
+          aria-label="Workspace navigation"
+        >
+          <div className="rounded-2xl border border-[#DCE5E6] bg-white p-3 shadow-sm">
+
+            {/* Project identity */}
+            <div className="flex items-center gap-3 px-3 py-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#244855] text-white">
+                <ClipboardCheck size={20} />
+              </div>
+
+              <div>
+                <p className="text-sm font-bold">Clark UAT</p>
+                <p className="text-xs text-[#64748B]">
+                  Znode 10 Upgrade
+                </p>
+              </div>
+            </div>
+
+            <div className="my-3 border-t border-[#E5ECEE]" />
+
+            {/* Workspace navigation */}
+            <p className="mb-3 px-3 text-[11px] font-bold uppercase tracking-[0.16em] text-[#874F41]">
+              Workspace
+            </p>
+
+            {nav.map(({ label, href, Icon, active }) => (
+              <Link
+                key={href}
+                href={href}
+                aria-current={active ? "page" : undefined}
+                className={`mb-1 flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition-colors ${
+                  active
+                    ? "bg-[#E5EEEE] text-[#244855]"
+                    : "text-[#64748B] hover:bg-[#F5F7F8] hover:text-[#244855]"
+                }`}
+              >
+                <Icon size={18} />
+                {label}
+              </Link>
+            ))}
+
+            <div className="my-4 border-t border-[#E5ECEE]" />
+
+            {/* Future issue management */}
+            <p className="mb-3 px-3 text-[11px] font-bold uppercase tracking-[0.16em] text-[#874F41]">
+              Issue Management
+            </p>
+
+            {[
+              { label: "Submissions", Icon: Inbox },
+              { label: "Review Queue", Icon: ListChecks },
+              { label: "Support Tickets", Icon: Ticket },
+            ].map(({ label, Icon }) => (
+              <div
+                key={label}
+                aria-disabled="true"
+                className="flex items-center justify-between gap-2 rounded-xl px-3 py-3 text-sm text-[#94A3B8]"
+              >
+                <div className="flex items-center gap-3">
+                  <Icon size={18} />
+                  <span>{label}</span>
+                </div>
+                <span className="text-[10px]">Soon</span>
+              </div>
+            ))}
+
+            <div className="my-4 border-t border-[#E5ECEE]" />
+
+            {/* Administration */}
+            <p className="mb-3 px-3 text-[11px] font-bold uppercase tracking-[0.16em] text-[#874F41]">
+              Administration
+            </p>
+
+            {[
+              { label: "Settings", Icon: Settings2 },
+              { label: "Integrations", Icon: Plug },
+            ].map(({ label, Icon }) => (
+              <div
+                key={label}
+                aria-disabled="true"
+                className="flex items-center justify-between gap-2 rounded-xl px-3 py-3 text-sm text-[#94A3B8]"
+              >
+                <div className="flex items-center gap-3">
+                  <Icon size={18} />
+                  <span>{label}</span>
+                </div>
+                <span className="text-[10px]">Soon</span>
+              </div>
+            ))}
+
           </div>
         </aside>
 
@@ -55,7 +137,7 @@ export default function WorkspaceDashboard() {
           <div className="flex flex-wrap items-end justify-between gap-5">
             <div>
               <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-[#874F41]">Znode 10 upgrade · UAT</p>
-              <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">Dashboard Overview</h1>
+              <h1 className="text-3xl font-light tracking-tight md:text-[30px]">Dashboard Overview</h1>
               <p className="mt-3 text-[#64748B]">Organize findings and prepare structured issues for Jira review.</p>
             </div>
             <Link href="/workspace/new" className="inline-flex items-center gap-2 rounded-xl bg-[#E64833] px-5 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#C83B29]">

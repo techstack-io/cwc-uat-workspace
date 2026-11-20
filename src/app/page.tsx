@@ -109,24 +109,24 @@ export default function Home() {
               AI-powered UAT
             </p>
      
-            <h1
-              className="max-w-2xl text-4xl font-normal tracking-tight md:text-5xl"
-              style={{
-                fontFamily: "var(--font-space-grotesk)",
-                lineHeight: 1.13,
-              }}
-            >
-              Turn UAT feedback
-              <span className="mt-4 block text-[#E64833]">
-                into Jira tickets.
+            <h1 className="flex flex-col gap-0 text-4xl sm:text-5xl font-bold tracking-tight">
+              <span className="leading-none">
+                Turn UAT feedback
+              </span>
+
+              <span
+                className="font-serif italic font-light text-[#C85A3B] text-[.80em] tracking-[-0.015em] leading-tight"
+                style={{ fontVariationSettings: '"SOFT" 100, "WONK" 0' }}
+              >
+                into support tickets.
               </span>
             </h1>
 
 
-            <p className="mt-8 max-w-xl text-lg leading-relaxed text-[#244855]/80 md:text-xl">
+            <p className="mt-8 max-w-xl text-lg leading-relaxed text-[#244855]/80 md:text-lg">
               Describe what you found in plain English.
               AI extracts, organizes, and prepares software
-              defects for review and Jira submission.
+              defects for review and support ticket submission.
             </p>
 
             <div className="mt-10 flex flex-wrap gap-4">
