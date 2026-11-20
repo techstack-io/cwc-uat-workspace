@@ -1,17 +1,17 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { parseTaskInput } from "@/lib/task-validation";
+import { authorizedReviewer } from "@/lib/reviewers";
 
 export const runtime = "nodejs";
 const workspaceId = "clark";
 
 export async function GET() {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const actor = await authorizedReviewer();
+  if (!actor) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   try {
     const tasks = await prisma.task.findMany({
-      where: { workspaceId, createdBy: userId },
+      where: { workspaceId },
       orderBy: { createdAt: "desc" },
     });
     return NextResponse.json(tasks, { headers: { "Cache-Control": "no-store" } });
@@ -21,8 +21,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const actor = await authorizedReviewer();
+  if (!actor) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   let body: unknown;
   try { body = await request.json(); } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   const data = parseTaskInput(body);
   if (!data) return NextResponse.json({ error: "Invalid task fields" }, { status: 400 });
   try {
-    const task = await prisma.task.create({ data: { ...data, workspaceId, createdBy: userId } });
+    const task = await prisma.task.create({ data: { ...data, workspaceId, createdBy: actor.userId } });
     return NextResponse.json(task, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Unable to create task" }, { status: 500 });

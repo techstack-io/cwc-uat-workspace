@@ -17,6 +17,7 @@ type TaskFields = {
   title: string;
   description: string;
   expectedResult: string;
+  acceptanceCriteria: string;
   area: (typeof areas)[number];
   priority: (typeof priorities)[number];
   status: (typeof statuses)[number];
@@ -25,13 +26,22 @@ type TaskFields = {
   jiraKey: string;
   platform: string;
   browser: string;
+  reviewerEmail: string;
+  rootCause: string;
 };
-type Task = TaskFields & { id: string };
+type Task = TaskFields & {
+  id: string;
+  createdBy: string;
+  approvalStatus: string;
+  reviewedBy: string;
+  reviewComment: string;
+  reviewedAt: string | null;
+};
 
 const blank: TaskFields = {
-  title: "", description: "", expectedResult: "", area: "Content & Forms",
+  title: "", description: "", expectedResult: "", acceptanceCriteria: "", area: "Content & Forms",
   priority: "Medium", status: "To do", assignee: "", dueDate: "", jiraKey: "",
-  platform: "", browser: "",
+  platform: "", browser: "", reviewerEmail: "dan.collins@clarkwire.com", rootCause: "",
 };
 
 const card = "rounded-2xl border border-[#DCE5E6] bg-white p-5 shadow-sm sm:p-6";
@@ -160,6 +170,9 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
+  const { user } = useUser();
+  const myEmail = user?.emailAddresses.find((e) => e.verification?.status === "verified" && ["dan.collins@clarkwire.com", "shane.collins@clarkwire.com"].includes(e.emailAddress.toLowerCase()))?.emailAddress.toLowerCase();
+  const [reviewComments, setReviewComments] = useState<Record<string, string>>({});
   const [hasLocalTasks, setHasLocalTasks] = useState(false);
 
   useEffect(() => {
@@ -185,7 +198,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
     return () => { cancelled = true; };
   }, [storageKey]);
 
-  async function writeTask(task: Task, isEditing: boolean) {
+  async function writeTask(task: TaskFields & { id: string }, isEditing: boolean) {
     setBusy(true);
     try {
       const response = await fetch(isEditing ? `/api/tasks/${encodeURIComponent(task.id)}` : "/api/tasks", {
@@ -208,6 +221,27 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
     }
   }
 
+  async function reviewTask(task: Task, decision: "Approved" | "Changes Requested") {
+    setBusy(true);
+    try {
+      const response = await fetch(`/api/tasks/${encodeURIComponent(task.id)}/review`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ decision, comment: reviewComments[task.id] || "" }),
+      });
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.error || "Review failed");
+      }
+      const updated: Task = await response.json();
+      setTasks((current) => (current ?? []).map((item) => item.id === task.id ? updated : item));
+      setNotice(`Task ${decision.toLowerCase()}.`);
+      setError("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to save review.");
+    } finally { setBusy(false); }
+  }
+
   async function importLocalTasks() {
     if (!window.confirm("Import tasks from this browser into Neon? Existing database tasks will be kept.")) return;
     let saved: unknown;
@@ -221,7 +255,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
         const response = await fetch("/api/tasks", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(item),
+          body: JSON.stringify({ ...blank, ...item, acceptanceCriteria: "", reviewerEmail: "dan.collins@clarkwire.com", rootCause: "" }),
         });
         if (!response.ok) throw new Error("Import stopped; some tasks may have been imported.");
         imported.push(await response.json());
@@ -249,7 +283,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!form || !form.title.trim()) return;
-    const task: Task = {
+    const task: TaskFields & { id: string } = {
       ...form,
       id: editing ?? crypto.randomUUID(),
       title: form.title.trim(),
@@ -271,7 +305,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-sm font-semibold">{tasks && `${completed} of ${tasks.length} completed`}</p>
-          <p className="text-sm text-[#1E1B18]">Tasks are saved in Neon for your account.</p>
+          <p className="text-sm text-[#1E1B18]">Tasks are shared with authorized Clark reviewers.</p>
           {hasLocalTasks && <button type="button" disabled={busy} className="mt-2 text-sm font-semibold text-[#E64833] underline disabled:opacity-50" onClick={() => void importLocalTasks()}>Import tasks saved in this browser</button>}
         </div>
         {tasks && !form && <button type="button" disabled={busy} className={primary} onClick={() => openForm()}><Plus size={17} /> New task</button>}
@@ -294,8 +328,21 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
               <label className="block">Expected result
                 <textarea className={field} rows={3} maxLength={255} value={form.expectedResult} onChange={(event) => update("expectedResult", event.target.value)} />
               </label>
+              <label className="block">Acceptance Criteria
+                <textarea className={field} rows={5} maxLength={10000} value={form.acceptanceCriteria} onChange={(event) => update("acceptanceCriteria", event.target.value)} placeholder={"List measurable conditions, one per line.\n• First slide advances automatically\n• Manual navigation works\n• Desktop and mobile retested"} />
+                <span className="mt-1 block text-xs font-normal text-[#1E1B18]">Conditions to verify before marking the task complete.</span>
+              </label>
+              <label className="block">Root Cause (if known)
+                <textarea className={field} rows={3} value={form.rootCause} onChange={(event) => update("rootCause", event.target.value)} placeholder="Leave blank until confirmed." />
+              </label>
             </div>
             <div className="grid content-start gap-4 text-sm font-semibold sm:grid-cols-2 md:border-l md:border-[#DCE5E6] md:pl-6">
+              <label className="block">Assigned reviewer
+                <select className={field} value={form.reviewerEmail} onChange={(event) => update("reviewerEmail", event.target.value)}>
+                  <option value="dan.collins@clarkwire.com">Dan</option>
+                  <option value="shane.collins@clarkwire.com">Shane</option>
+                </select>
+              </label>
               <label className="block">Test area
                 <select className={field} value={form.area} onChange={(event) => update("area", event.target.value as TaskFields["area"])}>
                   {areas.map((area) => <option key={area}>{area}</option>)}
@@ -349,7 +396,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
               {visible.map((task) => (
                 <li key={task.id} className="flex items-start gap-3 py-4">
                   <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-[#E64833]"
-                    aria-label={`Complete ${task.title}`} checked={task.status === "Done"} disabled={Boolean(form) || busy}
+                    aria-label={`Complete ${task.title}`} checked={task.status === "Done"} disabled={Boolean(form) || busy || task.approvalStatus !== "Approved" || task.createdBy !== user?.id}
                     onChange={async (event) => {
                       const status = event.target.checked ? "Done" : "To do";
                       if (await writeTask({ ...task, status }, true)) {
@@ -357,10 +404,26 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
                       }
                     }} />
                   <div className="min-w-0 flex-1">
-                    <button type="button" disabled={Boolean(form)} className="break-words text-left font-semibold hover:underline disabled:cursor-default" onClick={() => openForm(task)}>{task.title}</button>
+                    <button type="button" disabled={Boolean(form) || task.createdBy !== user?.id} className={`break-words text-left font-semibold hover:underline disabled:cursor-default ${task.status === "Done" ? "line-through opacity-60" : ""}`} onClick={() => openForm(task)}>{task.title}</button>
                     <p className="mt-1 break-words text-sm text-[#1E1B18]">
                       {[task.area, task.priority, task.assignee, task.dueDate && `Due ${task.dueDate}`, task.jiraKey].filter(Boolean).join(" · ")}
                     </p>
+                    <p className="mt-1 text-xs font-semibold">Review: {task.approvalStatus} · Assigned to {task.reviewerEmail === "shane.collins@clarkwire.com" ? "Shane" : "Dan"}</p>
+                    {task.approvalStatus === "Approved" && <p className="mt-1 text-xs font-semibold text-[#244855]">Ready for Jira</p>}
+                    {task.acceptanceCriteria && (
+                      <div className="mt-3 rounded-lg border border-[#DCE5E6] bg-white p-3">
+                        <p className="text-xs font-bold uppercase tracking-wide">Acceptance Criteria</p>
+                        <p className="mt-1 whitespace-pre-wrap break-words text-sm text-[#1E1B18]">{task.acceptanceCriteria}</p>
+                      </div>
+                    )}
+                    {task.reviewComment && <p className="mt-1 text-sm">Review comment: {task.reviewComment}</p>}
+                    {task.approvalStatus === "Pending Approval" && myEmail === task.reviewerEmail && (
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <input className={field + " !mt-0 max-w-sm"} aria-label="Review comment" placeholder="Comment (required for changes)" value={reviewComments[task.id] || ""} onChange={(event) => setReviewComments((current) => ({ ...current, [task.id]: event.target.value }))} />
+                        <button type="button" disabled={busy} className={primary} onClick={() => void reviewTask(task, "Approved")}>Approve</button>
+                        <button type="button" disabled={busy || !(reviewComments[task.id] || "").trim()} className="rounded-xl border border-[#BFCFD2] px-3 py-2 text-sm font-semibold disabled:opacity-50" onClick={() => void reviewTask(task, "Changes Requested")}>Request changes</button>
+                      </div>
+                    )}
                   </div>
                   <span className="shrink-0 rounded-md bg-[#EDF2F3] px-2 py-1 text-xs font-semibold">{task.status}</span>
                 </li>
