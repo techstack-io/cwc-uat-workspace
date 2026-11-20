@@ -330,7 +330,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
   }
 
   const reviewingTask = tasks?.find((task) => task.id === reviewingId);
-  const reviewItems = reviewingTask?.acceptanceCriteria.split(/\\r?\\n/).map((line) => line.trim()).filter(Boolean) ?? [];
+  const reviewItems = reviewingTask?.acceptanceCriteria.split(/\r?\n/).map((line) => line.trim()).filter(Boolean) ?? [];
   const reviewProgress: { index: number; by: string; at: string }[] = (() => {
     try { const value: unknown = JSON.parse(reviewingTask?.checklistProgress || "[]"); return Array.isArray(value) ? value : []; }
     catch { return []; }
@@ -516,7 +516,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
                         <p className="mt-1 whitespace-pre-wrap break-words text-sm text-[#1E1B18]">{task.acceptanceCriteria}</p>
                       </div>
                     )}
-                    {task.acceptanceCriteria && <p className="mt-2 text-xs font-semibold text-[#244855]">Checklist: {(() => { try { const value: unknown = JSON.parse(task.checklistProgress || "[]"); return Array.isArray(value) ? value.filter((entry) => entry.by === task.reviewerEmail).length : 0; } catch { return 0; } })()} / {task.acceptanceCriteria.split(/\\r?\\n/).map((line) => line.trim()).filter(Boolean).length} verified</p>}
+                    {task.acceptanceCriteria && <p className="mt-2 text-xs font-semibold text-[#244855]">Checklist: {(() => { try { const value: unknown = JSON.parse(task.checklistProgress || "[]"); return Array.isArray(value) ? value.filter((entry) => entry.by === task.reviewerEmail).length : 0; } catch { return 0; } })()} / {task.acceptanceCriteria.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).length} verified</p>}
                     {task.reviewComment && <p className="mt-1 text-sm">Review comment: {task.reviewComment}</p>}
                     {task.approvalStatus === "Pending Approval" && myEmail === task.reviewerEmail && (
                       <button type="button" disabled={busy || Boolean(form)} className="mt-3 rounded-xl border border-[#244855] px-4 py-2 text-sm font-semibold text-[#244855] hover:bg-[#E5EEEE] disabled:opacity-50" onClick={() => openReview(task)}>
