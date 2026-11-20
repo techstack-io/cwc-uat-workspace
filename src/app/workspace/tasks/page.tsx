@@ -35,6 +35,7 @@ type Task = TaskFields & {
   approvalStatus: string;
   reviewedBy: string;
   reviewComment: string;
+  checklistProgress: string;
   reviewedAt: string | null;
 };
 
@@ -175,6 +176,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
   const [reviewComments, setReviewComments] = useState<Record<string, string>>({});
   const [reviewingId, setReviewingId] = useState<string | null>(null);
   const [criteriaReviewed, setCriteriaReviewed] = useState(false);
+  const [savingChecklist, setSavingChecklist] = useState(false);
   const [hasLocalTasks, setHasLocalTasks] = useState(false);
 
   useEffect(() => {
@@ -246,6 +248,26 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
     } finally { setBusy(false); }
   }
 
+  async function verifyChecklistItem(task: Task, index: number, verified: boolean) {
+    setSavingChecklist(true);
+    try {
+      const response = await fetch(`/api/tasks/${encodeURIComponent(task.id)}/checklist`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ index, verified }),
+      });
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.error || "Could not save checklist");
+      }
+      const updated: Task = await response.json();
+      setTasks((current) => (current ?? []).map((item) => item.id === updated.id ? updated : item));
+      setError("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not save checklist.");
+    } finally { setSavingChecklist(false); }
+  }
+
   async function importLocalTasks() {
     if (!window.confirm("Import tasks from this browser into Neon? Existing database tasks will be kept.")) return;
     let saved: unknown;
@@ -308,6 +330,13 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
   }
 
   const reviewingTask = tasks?.find((task) => task.id === reviewingId);
+  const reviewItems = reviewingTask?.acceptanceCriteria.split(/\r?\n/).map((line) => line.trim()).filter(Boolean) ?? [];
+  const reviewProgress: { index: number; by: string; at: string }[] = (() => {
+    try { const value: unknown = JSON.parse(reviewingTask?.checklistProgress || "[]"); return Array.isArray(value) ? value : []; }
+    catch { return []; }
+  })();
+  const verifiedIndices = new Set(reviewProgress.filter((entry) => entry.by === myEmail).map((entry) => entry.index));
+  const allVerified = reviewItems.length > 0 && reviewItems.every((_, index) => verifiedIndices.has(index));
   const completed = tasks?.filter((task) => task.status === "Done").length ?? 0;
   const visible = tasks?.filter((task) => filter === "All" || (task.status === "Done") === (filter === "Completed"));
 
@@ -340,8 +369,8 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
                 <textarea className={field} rows={3} maxLength={255} value={form.expectedResult} onChange={(event) => update("expectedResult", event.target.value)} />
               </label>
               <label className="block">Acceptance Criteria
-                <textarea className={field} rows={5} maxLength={10000} value={form.acceptanceCriteria} onChange={(event) => update("acceptanceCriteria", event.target.value)} placeholder={"List measurable conditions, one per line.\n• First slide advances automatically\n• Manual navigation works\n• Desktop and mobile retested"} />
-                <span className="mt-1 block text-xs font-normal text-[#1E1B18]">Conditions to verify before marking the task complete.</span>
+                <textarea className={field} rows={8} maxLength={10000} value={form.acceptanceCriteria} onChange={(event) => update("acceptanceCriteria", event.target.value)} placeholder={"List measurable conditions, one per line.\n• First slide advances automatically\n• Manual navigation works\n• Desktop and mobile retested"} />
+                <span className="mt-1 block text-xs font-normal text-[#1E1B18]">Enter each Znode fix on a separate line. Reviewers must verify every line before approval.</span>
               </label>
               <label className="block">Root Cause (if known)
                 <textarea className={field} rows={3} value={form.rootCause} onChange={(event) => update("rootCause", event.target.value)} placeholder="Leave blank until confirmed." />
@@ -416,6 +445,23 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
               ))}
             </div>
             <div className="mt-6 border-t border-[#DCE5E6] pt-5">
+              <h3 className="text-sm font-bold">Fix verification checklist</h3>
+              <p className="mt-1 text-xs text-[#244855]">{verifiedIndices.size} of {reviewItems.length} verified · Saved to the task</p>
+              {reviewItems.length ? (
+                <div className="mt-4 space-y-3">
+                  {reviewItems.map((item, index) => {
+                    const entry = reviewProgress.find((record) => record.index === index && record.by === myEmail);
+                    return (
+                      <label key={index} className="flex items-start gap-3 rounded-lg border border-[#DCE5E6] p-3 text-sm">
+                        <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-[#244855]" checked={verifiedIndices.has(index)} disabled={savingChecklist || busy} onChange={(event) => void verifyChecklistItem(reviewingTask, index, event.target.checked)} />
+                        <span className="min-w-0"><span className="block whitespace-pre-wrap">{item}</span>{entry && <span className="mt-1 block text-xs text-[#244855]">Verified by {entry.by} · {new Date(entry.at).toLocaleString()}</span>}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              ) : <p className="mt-3 text-sm text-red-800">No checklist items. Add acceptance criteria to the task before approving.</p>}
+            </div>
+            <div className="mt-6 border-t border-[#DCE5E6] pt-5">
               <label className="flex items-start gap-3 text-sm font-medium">
                 <input type="checkbox" checked={criteriaReviewed} onChange={(event) => setCriteriaReviewed(event.target.checked)} className="mt-1 h-4 w-4 accent-[#E64833]" />
                 I have reviewed the task details, expected result, and acceptance criteria.
@@ -424,7 +470,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
                 <textarea rows={3} maxLength={2000} className={field} placeholder="Required when requesting changes" value={reviewComments[reviewingTask.id] || ""} onChange={(event) => setReviewComments((current) => ({ ...current, [reviewingTask.id]: event.target.value }))} />
               </label>
               <div className="mt-5 flex flex-wrap gap-3">
-                <button type="button" disabled={busy || !criteriaReviewed} className={primary + " disabled:cursor-not-allowed disabled:opacity-50"} onClick={() => void reviewTask(reviewingTask, "Approved")}>Approve</button>
+                <button type="button" disabled={busy || savingChecklist || !criteriaReviewed || !allVerified} className={primary + " disabled:cursor-not-allowed disabled:opacity-50"} onClick={() => void reviewTask(reviewingTask, "Approved")}>Approve</button>
                 <button type="button" disabled={busy || !(reviewComments[reviewingTask.id] || "").trim()} className="rounded-xl border border-[#BFCFD2] px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50" onClick={() => void reviewTask(reviewingTask, "Changes Requested")}>Request changes</button>
               </div>
             </div>
@@ -470,6 +516,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
                         <p className="mt-1 whitespace-pre-wrap break-words text-sm text-[#1E1B18]">{task.acceptanceCriteria}</p>
                       </div>
                     )}
+                    {task.acceptanceCriteria && <p className="mt-2 text-xs font-semibold text-[#244855]">Checklist: {(() => { try { const value: unknown = JSON.parse(task.checklistProgress || "[]"); return Array.isArray(value) ? value.filter((entry) => entry.by === task.reviewerEmail).length : 0; } catch { return 0; } })()} / {task.acceptanceCriteria.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).length} verified</p>}
                     {task.reviewComment && <p className="mt-1 text-sm">Review comment: {task.reviewComment}</p>}
                     {task.approvalStatus === "Pending Approval" && myEmail === task.reviewerEmail && (
                       <button type="button" disabled={busy || Boolean(form)} className="mt-3 rounded-xl border border-[#244855] px-4 py-2 text-sm font-semibold text-[#244855] hover:bg-[#E5EEEE] disabled:opacity-50" onClick={() => openReview(task)}>

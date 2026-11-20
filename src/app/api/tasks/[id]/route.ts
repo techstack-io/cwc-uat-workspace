@@ -32,7 +32,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
       data: {
         ...data,
         ...(resetApproval ? {
-          approvalStatus: "Pending Approval", reviewedBy: "", reviewedAt: null, reviewComment: "",
+          approvalStatus: "Pending Approval", reviewedBy: "", reviewedAt: null, reviewComment: "", checklistProgress: "[]",
           status: data.status === "Done" ? "To do" : data.status,
         } : {}),
       },
