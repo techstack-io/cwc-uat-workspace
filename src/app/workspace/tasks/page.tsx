@@ -36,7 +36,7 @@ const blank: TaskFields = {
 
 const card = "rounded-2xl border border-[#DCE5E6] bg-white p-5 shadow-sm sm:p-6";
 const primary = "inline-flex items-center gap-2 rounded-xl bg-[#E64833] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#C83B29]";
-const field = "mt-1.5 block w-full rounded-lg border border-[#BFCFD2] bg-white px-3 py-2 text-sm font-normal text-[#244855] focus-visible:outline-[#E64833]";
+const field = "mt-1.5 block w-full rounded-lg border border-[#BFCFD2] bg-white px-3 py-2 text-sm font-normal text-[#1E1B18] focus-visible:outline-[#E64833]";
 const textFields = [
   { key: "assignee", label: "Assignee" },
   { key: "platform", label: "Platform" },
@@ -53,7 +53,7 @@ export default function TasksPage() {
   const { user } = useUser();
 
   return (
-    <main className="min-h-screen bg-white text-[#244855]">
+    <main className="min-h-screen bg-white text-[#1E1B18]">
       <header className="border-b border-[#DCE5E6] bg-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-5">
           <Link href="/" className="flex items-center">
@@ -67,7 +67,7 @@ export default function TasksPage() {
             />
           </Link>
           <div className="flex items-center gap-4">
-            <span className="hidden text-xs font-semibold uppercase tracking-widest text-[#64748B] sm:inline">
+            <span className="hidden text-xs font-semibold uppercase tracking-widest text-[#1E1B18] sm:inline">
               Administrator workspace
             </span>
             <SignOutButton redirectUrl="/">
@@ -88,7 +88,7 @@ export default function TasksPage() {
               </div>
               <div>
                 <p className="text-sm font-bold">Clark UAT</p>
-                <p className="text-xs text-[#64748B]">Znode 10 Upgrade</p>
+                <p className="text-xs text-[#1E1B18]">Znode 10 Upgrade</p>
               </div>
             </div>
             <div className="my-3 border-t border-[#E5ECEE]" />
@@ -100,7 +100,7 @@ export default function TasksPage() {
                   key={href}
                   href={href}
                   aria-current={active ? "page" : undefined}
-                  className={`mb-1 flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition-colors ${active ? "bg-[#E5EEEE] text-[#244855]" : "text-[#64748B] hover:bg-[#F5F7F8] hover:text-[#244855]"}`}
+                  className={`mb-1 flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition-colors ${active ? "bg-[#E5EEEE] text-[#1E1B18]" : "text-[#1E1B18] hover:bg-[#F5F7F8] hover:text-[#1E1B18]"}`}
                 >
                   <Icon size={18} /> {label}
                 </Link>
@@ -135,7 +135,7 @@ export default function TasksPage() {
         <section className="min-w-0">
           <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-[#874F41]">Znode 10 upgrade · UAT</p>
           <h1 className="text-3xl font-light tracking-tight md:text-[30px]">UAT Tasks</h1>
-          <p className="mt-3 text-sm text-[#64748B]">
+          <p className="mt-3 text-sm text-[#1E1B18]">
             Test on the{" "}
             <a className="font-semibold underline" href="https://webstore-cwac-np.znodecorp.com/" target="_blank" rel="noreferrer">
               Znode 10 staging webstore
@@ -271,7 +271,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-sm font-semibold">{tasks && `${completed} of ${tasks.length} completed`}</p>
-          <p className="text-sm text-[#516879]">Tasks are saved in Neon for your account.</p>
+          <p className="text-sm text-[#1E1B18]">Tasks are saved in Neon for your account.</p>
           {hasLocalTasks && <button type="button" disabled={busy} className="mt-2 text-sm font-semibold text-[#E64833] underline disabled:opacity-50" onClick={() => void importLocalTasks()}>Import tasks saved in this browser</button>}
         </div>
         {tasks && !form && <button type="button" disabled={busy} className={primary} onClick={() => openForm()}><Plus size={17} /> New task</button>}
@@ -358,7 +358,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
                     }} />
                   <div className="min-w-0 flex-1">
                     <button type="button" disabled={Boolean(form)} className="break-words text-left font-semibold hover:underline disabled:cursor-default" onClick={() => openForm(task)}>{task.title}</button>
-                    <p className="mt-1 break-words text-sm text-[#516879]">
+                    <p className="mt-1 break-words text-sm text-[#1E1B18]">
                       {[task.area, task.priority, task.assignee, task.dueDate && `Due ${task.dueDate}`, task.jiraKey].filter(Boolean).join(" · ")}
                     </p>
                   </div>
@@ -366,7 +366,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
                 </li>
               ))}
             </ul>
-          ) : <p className="mt-5 text-sm text-[#516879]">{tasks.length === 0 ? "Create a task to start tracking UAT work." : `No ${filter.toLowerCase()} tasks.`}</p>}
+          ) : <p className="mt-5 text-sm text-[#1E1B18]">{tasks.length === 0 ? "Create a task to start tracking UAT work." : `No ${filter.toLowerCase()} tasks.`}</p>}
         </section>
       )}
     </div>
