@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { SignOutButton } from "@clerk/nextjs";
+import Image from "next/image";
 import {
   ArrowRight, ClipboardCheck, FilePlus2, LayoutDashboard,
   ListChecks, Ticket, Clock3, CheckCircle2, LogOut,
@@ -24,10 +25,16 @@ export default function WorkspaceDashboard() {
     <main className="min-h-screen bg-[#F5F7F8] text-[#244855]">
       <header className="border-b border-[#DCE5E6] bg-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-5">
-          <Link href="/workspace" className="flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#244855] text-white"><ClipboardCheck size={23} /></span>
-            <span><strong className="block text-lg">UAT Workspace</strong><small className="block text-xs text-[#874F41]">Clark Wire & Cable</small></span>
-          </Link>
+                    <Link href="/" className="flex items-center">
+          <Image
+            src="/uat-logo.png"
+            alt="UAT Workspace"
+            width={280}
+            height={80}
+            className="h-auto w-[220px] sm:w-[300px] xl:w-[350px]"
+            priority
+          />
+        </Link>
           <div className="flex items-center gap-4">
             <span className="hidden text-xs font-semibold uppercase tracking-widest text-[#64748B] sm:inline">Administrator workspace</span>
             <SignOutButton redirectUrl="/">

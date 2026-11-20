@@ -1,6 +1,7 @@
 
 import Link from "next/link";
 import AuthNavigation from "./AuthNavigation";
+import Image from "next/image";
 import {
   ArrowRight,
   Check,
@@ -55,21 +56,16 @@ export default function Home() {
       <div className="bg-[linear-gradient(115deg,#FFFCF8_0%,#FFFFFF_55%,#FFFFFF_100%)]">
         {/* Navigation */}
         <header className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-6">
-          <Link href="/" className="flex items-center gap-3">
-            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#244855] text-white shadow-sm">
-              <ClipboardCheck size={24} />
-            </span>
-
-            <span>
-              <strong className="block text-xl font-bold tracking-tight">
-                UAT Workspace
-              </strong>
-
-              <small className="block text-xs text-[#874F41]">
-                Clark Wire & Cable
-              </small>
-            </span>
-          </Link>
+          <Link href="/" className="flex items-center">
+          <Image
+            src="/uat-logo.png"
+            alt="UAT Workspace"
+            width={280}
+            height={80}
+            className="h-auto w-[220px] sm:w-[300px] xl:w-[350px]"
+            priority
+          />
+        </Link>
 
           <nav
             aria-label="Main navigation"
@@ -104,7 +100,7 @@ export default function Home() {
         <section className="mx-auto grid max-w-7xl items-start gap-12 px-6 pb-24 pt-10 lg:grid-cols-2 lg:gap-16 lg:pt-16">
           {/* Hero copy */}
           <div>
-            <p className="mb-7 inline-flex items-center gap-2 rounded-full border border-[#FBE9D0] bg-white/80 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-[#244855]">
+            <p className="mb-7 inline-flex items-center gap-2 rounded-full border border-[#FBE9D0] bg-white/80 px-4 text-xs font-bold uppercase tracking-[0.2em] text-[#244855]">
               <Sparkles size={15} className="text-[#E64833]" />
               AI-powered UAT
             </p>
