@@ -145,7 +145,7 @@ export default function WorkspaceDashboard() {
           <div className="flex flex-wrap items-end justify-between gap-5">
             <div>
               <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-[#874F41]">Znode 10 upgrade · UAT</p>
-              <h1 className="text-3xl font-light tracking-tight md:text-[30px]">Dashboard Overview</h1>
+              <h1 className="text-[#1E1B18] text-3xl font-light tracking-tight md:text-[30px]">Dashboard Overview</h1>
               <p className="mt-3 text-[#64748B]">Organize findings and prepare structured issues for Jira review.</p>
             </div>
             <Link href="/workspace/new" className="inline-flex items-center gap-2 rounded-xl bg-[#E64833] px-5 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#C83B29]">
