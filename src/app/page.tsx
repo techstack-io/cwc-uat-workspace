@@ -105,7 +105,7 @@ export default function Home() {
               AI-powered UAT
             </p>
      
-            <h1 className="flex flex-col gap-0 text-4xl sm:text-5xl font-bold tracking-tight">
+            <h1 className="flex flex-col gap-0 text-4xl sm:text-5xl font-bold tracking-tight text-[#1E1B18]">
               <span className="leading-none">
                 Turn UAT feedback
               </span>
