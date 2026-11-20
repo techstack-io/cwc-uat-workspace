@@ -9,10 +9,10 @@ export default function AuthNavigation() {
   if (!isSignedIn) {
     return (
       <Link
-      href="/sign-in"
-      className="rounded-xl bg-[#E64833] px-5 py-3 text-sm font-semibold text-white"
+        href="/sign-in"
+        className="rounded-xl bg-[#E64833] px-5 py-3 text-sm font-semibold text-white"
       >
-      Log In
+        Log In
       </Link>
     );
   }
@@ -28,10 +28,10 @@ export default function AuthNavigation() {
 
       <SignOutButton redirectUrl="/">
         <button
-            type="button"
-            className="rounded-xl border px-4 py-3 text-sm font-semibold"
+          type="button"
+          className="rounded-xl border px-4 py-3 text-sm font-semibold"
         >
-            Log Out
+          Log Out
         </button>
       </SignOutButton>
     </div>
