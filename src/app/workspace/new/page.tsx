@@ -101,13 +101,56 @@ export default function NewSubmissionPage() {
             const width = Math.max(1, Math.round(bitmap.width * scale));
             const height = Math.max(1, Math.round(bitmap.height * scale));
             bitmap.close();
-            const type = file.type === "image/png" ? "png" : file.type === "image/jpeg" ? "jpg" : "webp";
-            children.push(new Paragraph({ children: [new ImageRun({ data: bytes, type, transformation: { width, height } })] }));
-          } catch {
-            children.push(new Paragraph({ text: "Image could not be embedded; original file remains selected in the browser." }));
-          }
-        }
-      }
+
+let imageBytes = bytes;
+
+const imageType: "png" | "jpg" =
+  file.type === "image/jpeg" ? "jpg" : "png";
+
+if (file.type === "image/webp") {
+  const image = await createImageBitmap(file);
+  const canvas = document.createElement("canvas");
+
+  canvas.width = image.width;
+  canvas.height = image.height;
+
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("Canvas unavailable");
+
+  context.drawImage(image, 0, 0);
+  image.close();
+
+  const pngBlob = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      (blob) =>
+        blob ? resolve(blob) : reject(new Error("PNG conversion failed")),
+      "image/png"
+    );
+  });
+
+  imageBytes = new Uint8Array(await pngBlob.arrayBuffer());
+}
+
+    children.push(
+      new Paragraph({
+        children: [
+          new ImageRun({
+            data: imageBytes,
+            type: imageType,
+            transformation: { width, height },
+          }),
+        ],
+      })
+    );
+  } catch {
+    children.push(
+      new Paragraph({
+        text: "Image could not be embedded; original file remains selected in the browser.",
+      })
+    );
+  }
+}
+}
       const doc = new Document({ sections: [{ children }] });
       const blob = await Packer.toBlob(doc);
       const href = URL.createObjectURL(blob);
