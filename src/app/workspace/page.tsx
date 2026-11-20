@@ -23,7 +23,7 @@ const metrics = [
 
 export default function WorkspaceDashboard() {
   return (
-    <main className="min-h-screen bg-white text-[#244855]">
+    <main className="min-h-screen bg-white text-[#1E1B18]">
       <header className="border-b border-[#DCE5E6] bg-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-5">
                     <Link href="/" className="flex items-center">
@@ -37,7 +37,7 @@ export default function WorkspaceDashboard() {
           />
         </Link>
           <div className="flex items-center gap-4">
-            <span className="hidden text-xs font-semibold uppercase tracking-widest text-[#64748B] sm:inline">Administrator workspace</span>
+            <span className="hidden text-xs font-semibold uppercase tracking-widest text-[#1E1B18] sm:inline">Administrator workspace</span>
             <SignOutButton redirectUrl="/">
               <button type="button" className="inline-flex items-center gap-2 rounded-xl border border-[#DCE5E6] px-4 py-2 text-sm font-semibold hover:bg-[#F5F7F8]"><LogOut size={16}/> Log Out</button>
             </SignOutButton>
@@ -60,7 +60,7 @@ export default function WorkspaceDashboard() {
 
               <div>
                 <p className="text-sm font-bold">Clark UAT</p>
-                <p className="text-xs text-[#64748B]">
+                <p className="text-xs text-[#1E1B18]">
                   Znode 10 Upgrade
                 </p>
               </div>
@@ -80,8 +80,8 @@ export default function WorkspaceDashboard() {
                 aria-current={active ? "page" : undefined}
                 className={`mb-1 flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition-colors ${
                   active
-                    ? "bg-[#E5EEEE] text-[#244855]"
-                    : "text-[#64748B] hover:bg-[#F5F7F8] hover:text-[#244855]"
+                    ? "bg-[#E5EEEE] text-[#1E1B18]"
+                    : "text-[#1E1B18] hover:bg-[#F5F7F8] hover:text-[#1E1B18]"
                 }`}
               >
                 <Icon size={18} />
@@ -146,7 +146,7 @@ export default function WorkspaceDashboard() {
             <div>
               <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-[#874F41]">Znode 10 upgrade · UAT</p>
               <h1 className="text-[#1E1B18] text-3xl font-light tracking-tight md:text-[30px]">Dashboard Overview</h1>
-              <p className="mt-3 text-[#64748B]">Organize findings and prepare structured issues for Jira review.</p>
+              <p className="mt-3 text-[#1E1B18]">Organize findings and prepare structured issues for Jira review.</p>
             </div>
             <Link href="/workspace/new" className="inline-flex items-center gap-2 rounded-xl bg-[#E64833] px-5 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#C83B29]">
               <FilePlus2 size={18}/> New UAT Submission
@@ -157,7 +157,7 @@ export default function WorkspaceDashboard() {
             {metrics.map(({label,Icon}) => (
               <div key={label} className="rounded-2xl border border-[#DCE5E6] bg-white p-5 shadow-sm">
                 <Icon size={23} className="mb-5 text-[#E64833]"/>
-                <p className="text-sm font-medium text-[#64748B]">{label}</p>
+                <p className="text-sm font-medium text-[#1E1B18]">{label}</p>
                 <p className="mt-2 text-3xl font-semibold">—</p>
                 <p className="mt-2 text-xs text-[#94A3B8]">Not connected</p>
               </div>
@@ -168,7 +168,7 @@ export default function WorkspaceDashboard() {
             <div className="rounded-2xl border border-[#DCE5E6] bg-white p-6 shadow-sm">
               <p className="text-xs font-bold uppercase tracking-widest text-[#874F41]">Quick action</p>
               <h2 className="mt-3 text-xl font-semibold">Start a new UAT submission</h2>
-              <p className="mt-3 text-sm leading-relaxed text-[#64748B]">Describe issues in plain English. For now, the submission screen provides an editable local preview; the Jira-ready field format will be defined separately.</p>
+              <p className="mt-3 text-sm leading-relaxed text-[#1E1B18]">Describe issues in plain English. For now, the submission screen provides an editable local preview; the Jira-ready field format will be defined separately.</p>
               <Link href="/workspace/new" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#E64833] px-5 py-3 text-sm font-bold text-white hover:bg-[#C83B29]">New UAT Submission <ArrowRight size={17}/></Link>
             </div>
             <div className="rounded-2xl border border-[#DCE5E6] bg-white p-6 shadow-sm">
@@ -178,7 +178,7 @@ export default function WorkspaceDashboard() {
                   <div key={step} className="flex items-center gap-3 text-sm"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FBE9D0] font-bold text-[#874F41]">{step}</span>{label}</div>
                 ))}
               </div>
-              <p className="mt-5 text-xs text-[#64748B]">Structured extraction and Jira export are planned, not yet active.</p>
+              <p className="mt-5 text-xs text-[#1E1B18]">Structured extraction and Jira export are planned, not yet active.</p>
             </div>
           </div>
 
@@ -187,7 +187,7 @@ export default function WorkspaceDashboard() {
             <div className="mt-6 flex flex-col items-center rounded-xl border border-dashed border-[#DCE5E6] px-6 py-10 text-center">
               <ListChecks size={30} className="text-[#90AEAD]"/>
               <p className="mt-3 font-semibold">No saved submissions yet</p>
-              <p className="mt-2 max-w-md text-sm text-[#64748B]">Submission history will appear here after database persistence is implemented. The current preview is not saved.</p>
+              <p className="mt-2 max-w-md text-sm text-[#1E1B18]">Submission history will appear here after database persistence is implemented. The current preview is not saved.</p>
             </div>
           </div>
         </section>
