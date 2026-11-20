@@ -53,7 +53,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white text-[#244855]">
       {/* Header and hero */}
-      <div className="bg-[linear-gradient(115deg,#FFFCF8_0%,#FFFFFF_55%,#FFFFFF_100%)]">
+     <div className="bg-[linear-gradient(125deg,#F9F3EC_0%,#FFFCF9_45%,#FFFFFF_100%)]">
         {/* Navigation */}
         <header className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-6">
           <Link href="/" className="flex items-center">
