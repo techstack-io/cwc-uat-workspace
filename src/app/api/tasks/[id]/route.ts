@@ -23,7 +23,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     if (data.status === "Done" && existing.approvalStatus !== "Approved") {
       return NextResponse.json({ error: "Approve the task before marking it complete" }, { status: 409 });
     }
-    const resetApproval = existing.reviewerEmail !== data.reviewerEmail ||
+    const resetApproval = existing.approvalStatus === "Changes Requested" || existing.reviewerEmail !== data.reviewerEmail ||
       existing.title !== data.title || existing.description !== data.description ||
       existing.expectedResult !== data.expectedResult;
     const updated = await prisma.task.updateMany({
