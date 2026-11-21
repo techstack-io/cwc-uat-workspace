@@ -1,3 +1,4 @@
+import UatMark from "@/components/UatMark";
 "use client";
 
 import Link from "next/link";
@@ -54,8 +55,8 @@ export default function WorkspaceDashboard() {
 
             {/* Project identity */}
             <div className="flex items-center gap-3 px-3 py-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#244855] text-white">
-                <ClipboardCheck size={20} />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white">
+                <UatMark size={36} />
               </div>
 
               <div>
