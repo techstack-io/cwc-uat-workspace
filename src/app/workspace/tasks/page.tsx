@@ -1,5 +1,7 @@
 "use client";
 
+import UatMark from "@/components/UatMark";
+
 import { useUser, SignOutButton } from "@clerk/nextjs";
 import Image from "next/image";
 import { Plus, LogOut, ClipboardCheck, LayoutDashboard, FilePlus2, ListChecks, Inbox, Ticket, Settings2, Plug } from "lucide-react";
@@ -94,8 +96,8 @@ export default function TasksPage() {
         <aside className="self-start md:sticky md:top-6" aria-label="Workspace navigation">
           <div className="rounded-2xl border border-[#DCE5E6] bg-white p-3 shadow-sm">
             <div className="flex items-center gap-3 px-3 py-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#244855] text-white">
-                <ClipboardCheck size={20} />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white">
+                <UatMark size={36} />
               </div>
               <div>
                 <p className="text-sm font-bold">Clark UAT</p>
