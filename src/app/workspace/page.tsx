@@ -1,5 +1,6 @@
-import UatMark from "@/components/UatMark";
 "use client";
+
+import UatMark from "@/components/UatMark";
 
 import Link from "next/link";
 import { SignOutButton } from "@clerk/nextjs";
