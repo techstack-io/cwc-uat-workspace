@@ -1,336 +1,44 @@
-
+import type { Metadata } from "next";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import AuthNavigation from "./AuthNavigation";
-import Image from "next/image";
-import {
-  ArrowRight,
-  Check,
-  ClipboardCheck,
-  Layers3,
-  ShieldCheck,
-  Sparkles,
-  TicketCheck,
-  Users,
-} from "lucide-react";
+import WorkflowFolder from "./WorkflowFolder";
 
-const features = [
-  {
-    Icon: Sparkles,
-    title: "Use natural language",
-    text: "Paste observations—no special format required.",
-  },
-  {
-    Icon: Layers3,
-    title: "AI-powered extraction",
-    text: "Organize observations into proposed defects.",
-  },
-  {
-    Icon: Users,
-    title: "Review and refine",
-    text: "Edit, merge, or reject proposed issues.",
-  },
-  {
-    Icon: TicketCheck,
-    title: "Create Jira tickets",
-    text: "Send approved issues to Jira once integrated.",
-  },
-];
-
-const proposedIssues = [
-  "Banner rotation not active",
-  "Banner text formatting is inconsistent",
-  "Banner image is too dark and cropped",
-];
-
-const steps = [
-  "Submit feedback",
-  "Extract issues",
-  "Review",
-  "Create Jira tickets",
-];
+export const metadata: Metadata = {
+  title: "Protolithic — Turn business problems into workflows",
+  description: "Describe a business problem and turn it into a workflow with clear tasks, owners, and review steps.",
+};
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white text-[#244855]">
-      {/* Header and hero */}
-     <div className="bg-white">
-        {/* Navigation */}
-        <header className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-6">
-          <Link href="/" className="flex items-center">
-          <Image
-            src="/uat-logo-2.png"
-            alt="UAT Workspace"
-            width={280}
-            height={80}
-            className="h-auto w-[220px] sm:w-[300px] xl:w-[350px]"
-            priority
-          />
-        </Link>
-
-          <nav
-            aria-label="Main navigation"
-            className="hidden items-center gap-8 text-sm font-semibold md:flex"
-          >
-            <a
-              href="#features"
-              className="transition-colors hover:text-[#E64833]"
-            >
-              Features
-            </a>
-
-            <a
-              href="#how"
-              className="transition-colors hover:text-[#E64833]"
-            >
-              How It Works
-            </a>
-
-            <a
-              href="#security"
-              className="transition-colors hover:text-[#E64833]"
-            >
-              Security
-            </a>
-          </nav>
-
+    <div className="min-h-screen bg-[#F7FAFC] text-[#1D1B18]">
+      <header className="border-b border-[#244855]/15">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-4">
+          <Link href="/" className="inline-flex items-center gap-2.5 font-serif text-2xl font-semibold">
+            <span aria-hidden="true" className="grid h-7 w-7 place-items-center rounded bg-[#1D1B18]">
+              <span className="h-2.5 w-2.5 rotate-45 bg-[#E64833]" />
+            </span>
+            Protolithic
+          </Link>
           <AuthNavigation />
-        </header>
-
-        {/* Hero */}
-        <section className="mx-auto grid max-w-7xl items-start gap-12 px-6 pb-24 pt-10 lg:grid-cols-2 lg:gap-16 lg:pt-16">
-          {/* Hero copy */}
+        </div>
+      </header>
+      <main className="bg-[linear-gradient(to_right,#24485512_1px,transparent_1px),linear-gradient(to_bottom,#24485512_1px,transparent_1px)] bg-[size:32px_32px]">
+        <section className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-16 md:grid-cols-[1.15fr_1fr] md:py-28">
           <div>
-            <p className="mb-7 inline-flex items-center gap-2 rounded-full border border-[#FBE9D0] bg-white/80 px-4 text-xs font-bold uppercase tracking-[0.2em] text-[#244855]">
-              <Sparkles size={15} className="text-[#E64833]" />
-              AI-powered UAT
-            </p>
-     
-            <h1 className="flex flex-col gap-0 text-4xl sm:text-5xl font-bold tracking-tight text-[#1E1B18]">
-              <span className="leading-none">
-                Turn UAT feedback
-              </span>
-
-              <span
-                className="font-serif italic font-light text-[#C85A3B] text-[.80em] tracking-[-0.015em] leading-tight"
-                style={{ fontVariationSettings: '"SOFT" 100, "WONK" 0' }}
-              >
-                into support tickets.
-              </span>
+            <h1 className="max-w-2xl font-serif text-5xl leading-[1.02] tracking-tight md:text-7xl">
+              From <em className="text-[#C75A3C]">“we should fix this”</em> to work that gets done.
             </h1>
-
-
-            <p className="mt-8 max-w-xl text-lg leading-relaxed text-[#244855]/80 md:text-lg">
-              Describe what you found in plain English.
-              AI extracts, organizes, and prepares software
-              defects for review and support ticket submission.
+            <p className="mt-6 max-w-lg text-lg leading-relaxed text-[#244855]">
+              Describe a business problem in plain language. Protolithic helps you turn it into clear tasks, assign owners, and decide what needs review.
             </p>
-
-            <div className="mt-10 flex flex-wrap gap-4">
-              <Link
-                href="/workspace"
-                className="inline-flex items-center gap-3 rounded-xl bg-[#E64833] px-7 py-4 font-semibold text-white shadow-lg shadow-[#E64833]/15 transition-all hover:-translate-y-0.5 hover:bg-[#C83B29]"
-              >
-                Try workspace
-                <ArrowRight size={18} />
-              </Link>
-
-              <a
-                href="#how"
-                className="inline-flex items-center rounded-xl border border-[#90AEAD]/60 bg-white px-7 py-4 font-semibold text-[#244855] shadow-sm transition-colors hover:bg-[#FBE9D0]/40"
-              >
-                See how it works
-              </a>
-            </div>
-
-            <div className="mt-10 flex items-center gap-2 text-sm text-[#244855]/70">
-              <ShieldCheck size={18} className="text-[#90AEAD]" />
-              Human-reviewed issue creation
-            </div>
+            <Link href="/workspace" className="mt-8 inline-flex items-center gap-3 rounded-lg bg-[#1D1B18] px-5 py-3 font-semibold text-white hover:bg-[#244855]">
+              Open UAT Workspace <ArrowRight aria-hidden="true" size={17} />
+            </Link>
           </div>
-
-          {/* Workspace preview */}
-          <div className="rounded-3xl border border-[#90AEAD]/35 bg-white p-5 shadow-[0px_4px_16px_rgba(17,17,26,0.1),_0px_8px_24px_rgba(17,17,26,0.1),_0px_16px_56px_rgba(17,17,26,0.1)] sm:p-7">
-            <div className="mb-6 flex items-center justify-between gap-3">
-              <div>
-                <p className="mb-1 text-xs font-bold uppercase tracking-[0.16em] text-[#874F41]">
-                  Workspace preview
-                </p>
-
-                <h2 className="text-xl font-bold">
-                  New UAT Submission
-                </h2>
-              </div>
-
-              <span className="rounded-full bg-[#FBE9D0] px-3 py-1 text-xs font-semibold text-[#874F41]">
-                Demo
-              </span>
-            </div>
-
-            {/* Original feedback */}
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm leading-7 text-[#244855]">
-              <p>
-                Banner All – Rotation not active.
-                Click and slide not active.
-              </p>
-
-              <p className="mt-3">
-                Banner 1 – Letters don&apos;t match,
-                Bold vs Non. Underline added.
-                Image is too dark. Picture cut at bottom.
-              </p>
-            </div>
-
-            {/* Illustrative extraction action */}
-            <div className="my-6 flex justify-center">
-              <span className="inline-flex items-center gap-2 rounded-xl bg-[#E64833] px-6 py-3 text-sm font-semibold text-white shadow-sm">
-                <Sparkles size={17} />
-                Extract Issues with AI
-              </span>
-            </div>
-
-            {/* Proposed issues */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-4">
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <h3 className="font-bold">
-                  Proposed Issues (3)
-                </h3>
-
-                <span className="text-xs font-medium text-[#244855]">
-                  Ready for review
-                </span>
-              </div>
-
-              {proposedIssues.map((issue) => (
-                <div
-                  key={issue}
-                  className="flex items-start gap-3 border-t border-slate-100 py-3 text-sm"
-                >
-                  <span className="mt-0.5 text-[#90AEAD]">
-                    <Check size={17} strokeWidth={2.5} />
-                  </span>
-
-                  <span className="rounded-md bg-[#FBE9D0] px-2 py-0.5 text-xs font-medium text-[#874F41]">
-                    Bug
-                  </span>
-
-                  <span className="flex-1 text-[#244855]">
-                    {issue}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <p className="mt-4 text-right text-xs text-slate-400">
-              Illustrative preview
-            </p>
-          </div>
+          <WorkflowFolder />
         </section>
-      </div>
-
-      {/* Features */}
-      <section
-        id="features"
-        className="mx-auto max-w-7xl px-6 py-24"
-      >
-        <div className="mb-12">
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[#874F41]">
-            Capabilities
-          </p>
-
-          <h2 className="text-3xl font-bold tracking-tight">
-            A simpler way to manage UAT
-          </h2>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {features.map(({ Icon, title, text }) => (
-            <div
-              key={title}
-              className="rounded-2xl border border-[#90AEAD]/30 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
-            >
-              <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-[#FBE9D0]/70 text-[#874F41]">
-                <Icon size={25} />
-              </div>
-
-              <h3 className="mb-3 text-lg font-bold">
-                {title}
-              </h3>
-
-              <p className="text-sm leading-relaxed text-[#244855]/75">
-                {text}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section
-        id="how"
-        className="bg-[linear-gradient(110deg,#FFF8EF_0%,#FFFFFF_75%)] px-6 py-24"
-      >
-        <div className="mx-auto max-w-5xl text-center">
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[#874F41]">
-            Workflow
-          </p>
-
-          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-            From observations to actionable defects
-          </h2>
-
-          <p className="mx-auto mt-5 max-w-2xl text-[#244855]/75">
-            Turn unstructured testing feedback into organized,
-            reviewable issues through a straightforward workflow.
-          </p>
-
-          <div className="mt-12 grid gap-4 md:grid-cols-4">
-            {steps.map((step, index) => (
-              <div
-                key={step}
-                className="rounded-2xl border border-[#90AEAD]/35 bg-white p-6 shadow-sm"
-              >
-                <span
-                  className={`mb-4 inline-flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold text-white ${
-                    index % 2 === 0
-                      ? "bg-[#244855]"
-                      : "bg-[#E64833]"
-                  }`}
-                >
-                  {index + 1}
-                </span>
-
-                <p className="font-semibold">
-                  {step}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Security */}
-      <section
-        id="security"
-        className="mx-auto max-w-5xl px-6 py-20"
-      >
-        <div className="flex items-start gap-5 rounded-2xl border border-[#90AEAD]/35 bg-[#FBE9D0]/30 p-6 sm:p-8">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-[#244855]">
-            <ShieldCheck size={26} />
-          </div>
-
-          <div>
-            <h2 className="mb-2 text-lg font-bold">
-              Human oversight by design
-            </h2>
-
-            <p className="leading-relaxed text-[#244855]/75">
-              Human approval is required in the planned
-              production workflow. Clerk authentication is enabled. AI extraction,
-              database persistence, and Jira integration are not yet enabled.
-            </p>
-          </div>
-        </div>
-      </section>
-    </main>
+      </main>
+    </div>
   );
 }
