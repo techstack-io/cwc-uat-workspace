@@ -168,6 +168,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState<TaskFields | null>(null);
   const [filter, setFilter] = useState<"All" | "Open" | "Completed">("All");
+  const [assigneeFilter, setAssigneeFilter] = useState("All assignees");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
@@ -338,7 +339,11 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
   const verifiedIndices = new Set(reviewProgress.filter((entry) => entry.by === myEmail).map((entry) => entry.index));
   const allVerified = reviewItems.length > 0 && reviewItems.every((_, index) => verifiedIndices.has(index));
   const completed = tasks?.filter((task) => task.status === "Done").length ?? 0;
-  const visible = tasks?.filter((task) => filter === "All" || (task.status === "Done") === (filter === "Completed"));
+  const assignees = Array.from(new Set((tasks ?? []).map((task) => task.assignee.trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b));
+  const visible = tasks?.filter((task) =>
+    (filter === "All" || (task.status === "Done") === (filter === "Completed")) &&
+    (assigneeFilter === "All assignees" || (assigneeFilter === "Unassigned" ? !task.assignee.trim() : task.assignee.trim() === assigneeFilter))
+  );
 
   return (
     <div className="mt-7 space-y-5">
@@ -482,13 +487,22 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
         <section className={card} aria-labelledby="task-list-heading">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <h2 id="task-list-heading" className="text-xl font-semibold">Task list</h2>
-            <div className="flex flex-wrap gap-1 rounded-lg bg-[#EDF2F3] p-1" role="group" aria-label="Filter tasks">
-              {(["All", "Open", "Completed"] as const).map((item) => (
-                <button key={item} type="button" aria-pressed={filter === item} onClick={() => setFilter(item)}
-                  className={`rounded-md px-3 py-1.5 text-sm font-semibold ${filter === item ? "bg-white shadow-sm" : "hover:bg-white/60"}`}>
-                  {item}
-                </button>
-              ))}
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap gap-1 rounded-lg bg-[#EDF2F3] p-1" role="group" aria-label="Filter tasks">
+                {(["All", "Open", "Completed"] as const).map((item) => (
+                  <button key={item} type="button" aria-pressed={filter === item} onClick={() => setFilter(item)}
+                    className={`rounded-md px-3 py-1.5 text-sm font-semibold ${filter === item ? "bg-white shadow-sm" : "hover:bg-white/60"}`}>
+                    {item}
+                  </button>
+                ))}
+              </div>
+              <label className="sr-only" htmlFor="task-assignee-filter">Filter by assignee</label>
+              <select id="task-assignee-filter" value={assigneeFilter} onChange={(event) => setAssigneeFilter(event.target.value)}
+                className="rounded-lg border border-[#BFCFD2] bg-white px-3 py-2 text-sm font-semibold text-[#244855]">
+                <option value="All assignees">All assignees</option>
+                {assignees.map((name) => <option key={name} value={name}>{name}</option>)}
+                <option value="Unassigned">Unassigned</option>
+              </select>
             </div>
           </div>
           {visible?.length ? (
