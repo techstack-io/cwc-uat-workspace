@@ -39,6 +39,7 @@ model Task {
 
 
   @@index([workspaceId])
+  @@index([workspaceId, archivedAt])
   @@index([createdBy])
   @@index([status])
   @@index([reviewerEmail])
