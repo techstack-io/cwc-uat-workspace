@@ -29,6 +29,7 @@ export async function POST(request: Request) {
   }
   const data = parseTaskInput(body);
   if (!data) return NextResponse.json({ error: "Invalid task fields" }, { status: 400 });
+  if (!actor.isAdmin && (data.status === "Done" || data.jiraKey)) return NextResponse.json({ error: "Only Dan can complete tasks or assign Jira keys" }, { status: 403 });
   try {
     const task = await prisma.task.create({ data: { ...data, reviewerEmail: actor.isAdmin ? data.reviewerEmail : "dan.collins@clarkwire.com", workspaceId, createdBy: actor.userId, createdByEmail: actor.email } });
     return NextResponse.json(task, { status: 201 });
