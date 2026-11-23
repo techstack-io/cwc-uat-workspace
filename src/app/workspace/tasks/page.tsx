@@ -34,6 +34,7 @@ type TaskFields = {
 type Task = TaskFields & {
   id: string;
   createdBy: string;
+  createdByEmail: string;
   approvalStatus: string;
   reviewedBy: string;
   reviewComment: string;
@@ -81,7 +82,7 @@ export default function TasksPage() {
           </Link>
           <div className="flex items-center gap-4">
             <span className="hidden text-xs font-semibold uppercase tracking-widest text-[#1E1B18] sm:inline">
-              Administrator workspace
+              Clark UAT workspace
             </span>
             <SignOutButton redirectUrl="/">
               <button type="button" className="inline-flex items-center gap-2 rounded-xl border border-[#DCE5E6] px-4 py-2 text-sm font-semibold hover:bg-[#F5F7F8]">
@@ -175,7 +176,8 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
   const { user } = useUser();
-  const myEmail = user?.emailAddresses.find((e) => e.verification?.status === "verified" && ["dan.collins@clarkwire.com", "shane.collins@clarkwire.com"].includes(e.emailAddress.toLowerCase()))?.emailAddress.toLowerCase();
+  const myEmail = user?.emailAddresses.find((e) => e.verification?.status === "verified" && e.emailAddress.toLowerCase() === "dan.collins@clarkwire.com")?.emailAddress.toLowerCase();
+  const isAdmin = Boolean(myEmail);
   const [reviewComments, setReviewComments] = useState<Record<string, string>>({});
   const [reviewingId, setReviewingId] = useState<string | null>(null);
   const [criteriaReviewed, setCriteriaReviewed] = useState(false);
@@ -301,7 +303,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
 
   function openForm(task?: Task) {
     setEditing(task?.id ?? null);
-    setForm(task ?? blank);
+    setForm(task ? { ...task, reviewerEmail: isAdmin ? task.reviewerEmail : "dan.collins@clarkwire.com" } : { ...blank });
     setNotice("");
   }
 
@@ -352,7 +354,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-sm font-semibold">{tasks && `${completed} of ${tasks.length} completed`}</p>
-          <p className="text-sm text-[#1E1B18]">Tasks are shared with authorized Clark reviewers.</p>
+          <p className="text-sm text-[#1E1B18]">Tasks are shared with authorized Clark team members. Saving a task makes it available to Dan immediately.</p>
           {hasLocalTasks && <button type="button" disabled={busy} className="mt-2 text-sm font-semibold text-[#E64833] underline disabled:opacity-50" onClick={() => void importLocalTasks()}>Import tasks saved in this browser</button>}
         </div>
         {tasks && !form && <button type="button" disabled={busy} className={primary} onClick={() => openForm()}><Plus size={17} /> New task</button>}
@@ -385,9 +387,9 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
             </div>
             <div className="grid content-start gap-4 text-sm font-semibold sm:grid-cols-2 md:border-l md:border-[#DCE5E6] md:pl-6">
               <label className="block">Assigned reviewer
-                <select className={field} value={form.reviewerEmail} onChange={(event) => update("reviewerEmail", event.target.value)}>
+                <select disabled={!isAdmin} className={field} value={form.reviewerEmail} onChange={(event) => update("reviewerEmail", event.target.value)}>
                   <option value="dan.collins@clarkwire.com">Dan</option>
-                  <option value="shane.collins@clarkwire.com">Shane</option>
+                  {isAdmin && <option value="shane.collins@clarkwire.com">Shane (legacy reviews)</option>}
                 </select>
               </label>
               <label className="block">Test area
@@ -512,7 +514,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
               {visible.map((task) => (
                 <li key={task.id} className="flex items-start gap-3 py-4">
                   <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-[#E64833]"
-                    aria-label={`Complete ${task.title}`} checked={task.status === "Done"} disabled={Boolean(form) || busy || task.approvalStatus !== "Approved" || task.createdBy !== user?.id}
+                    aria-label={`Complete ${task.title}`} checked={task.status === "Done"} disabled={Boolean(form) || busy || !isAdmin || task.approvalStatus !== "Approved"}
                     onChange={async (event) => {
                       const status = event.target.checked ? "Done" : "To do";
                       if (await writeTask({ ...task, status }, true)) {
@@ -520,7 +522,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
                       }
                     }} />
                   <div className="min-w-0 flex-1">
-                    <button type="button" disabled={Boolean(form) || task.createdBy !== user?.id} className={`break-words text-left font-semibold hover:underline disabled:cursor-default ${task.status === "Done" ? "line-through opacity-60" : ""}`} onClick={() => openForm(task)}>{task.title}</button>
+                    <button type="button" disabled={Boolean(form) || (!isAdmin && (task.createdBy !== user?.id || task.approvalStatus === "Approved"))} className={`break-words text-left font-semibold hover:underline disabled:cursor-default ${task.status === "Done" ? "line-through opacity-60" : ""}`} onClick={() => openForm(task)}>{task.title}</button>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       <span className="inline-flex items-center gap-2 rounded-lg border border-[#90AEAD] bg-[#EDF2F3] px-3 py-1.5 text-sm font-semibold text-[#244855]">
                         <span className="text-xs font-bold uppercase tracking-wide">Assignee</span>
@@ -530,6 +532,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
                     <p className="mt-2 break-words text-sm text-[#1E1B18]">
                       {[task.area, task.priority, task.dueDate && `Due ${task.dueDate}`, task.jiraKey].filter(Boolean).join(" · ")}
                     </p>
+                    <p className="mt-2 text-xs font-semibold text-[#244855]">Created by: {task.createdByEmail || (task.createdBy === user?.id ? "You" : "Existing task")}</p>
                     <p className="mt-1 text-xs font-semibold">Review: {task.approvalStatus} · Assigned to {task.reviewerEmail === "shane.collins@clarkwire.com" ? "Shane" : "Dan"}</p>
                     {task.approvalStatus === "Approved" && <p className="mt-1 text-xs font-semibold text-[#244855]">Ready for Jira</p>}
                     {task.acceptanceCriteria && (
