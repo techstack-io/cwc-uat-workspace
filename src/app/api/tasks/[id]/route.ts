@@ -21,6 +21,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     if (!existing) return NextResponse.json({ error: "Task not found" }, { status: 404 });
     if (!actor.isAdmin && existing.createdBy !== actor.userId) return NextResponse.json({ error: "Only the creator or UAT administrator may edit this task" }, { status: 403 });
     if (!actor.isAdmin && existing.approvalStatus === "Approved") return NextResponse.json({ error: "Approved tasks are locked for testers" }, { status: 403 });
+    if (!actor.isAdmin && (data.status === "Done" || data.jiraKey !== existing.jiraKey)) return NextResponse.json({ error: "Only Dan can complete tasks or change Jira keys" }, { status: 403 });
     if (!actor.isAdmin && data.reviewerEmail !== "dan.collins@clarkwire.com") return NextResponse.json({ error: "Only the UAT administrator may change the reviewer" }, { status: 403 });
     if (data.status === "Done" && existing.approvalStatus !== "Approved") {
       return NextResponse.json({ error: "Approve the task before marking it complete" }, { status: 409 });
