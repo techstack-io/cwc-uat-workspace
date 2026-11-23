@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { parseTaskInput } from "@/lib/task-validation";
-import { authorizedReviewer } from "@/lib/reviewers";
+import { authorizedWorkspaceUser } from "@/lib/reviewers";
 
 export const runtime = "nodejs";
 const workspaceId = "clark";
 
 export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
-  const actor = await authorizedReviewer();
+  const actor = await authorizedWorkspaceUser();
   if (!actor) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const { id } = await context.params;
   let body: unknown;
@@ -19,7 +19,10 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   try {
     const existing = await prisma.task.findFirst({ where: { id, workspaceId } });
     if (!existing) return NextResponse.json({ error: "Task not found" }, { status: 404 });
-    if (existing.createdBy !== actor.userId) return NextResponse.json({ error: "Only the creator may edit this task" }, { status: 403 });
+    if (!actor.isAdmin && existing.createdBy !== actor.userId) return NextResponse.json({ error: "Only the creator or UAT administrator may edit this task" }, { status: 403 });
+    if (!actor.isAdmin && existing.approvalStatus === "Approved") return NextResponse.json({ error: "Approved tasks are locked for testers" }, { status: 403 });
+    if (!actor.isAdmin && (data.status === "Done" || data.jiraKey !== existing.jiraKey)) return NextResponse.json({ error: "Only Dan can complete tasks or change Jira keys" }, { status: 403 });
+    if (!actor.isAdmin && data.reviewerEmail !== "dan.collins@clarkwire.com") return NextResponse.json({ error: "Only the UAT administrator may change the reviewer" }, { status: 403 });
     if (data.status === "Done" && existing.approvalStatus !== "Approved") {
       return NextResponse.json({ error: "Approve the task before marking it complete" }, { status: 409 });
     }
@@ -28,9 +31,10 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
       existing.expectedResult !== data.expectedResult ||
       existing.acceptanceCriteria !== data.acceptanceCriteria;
     const updated = await prisma.task.updateMany({
-      where: { id, workspaceId, createdBy: actor.userId, updatedAt: existing.updatedAt },
+      where: { id, workspaceId, updatedAt: existing.updatedAt },
       data: {
         ...data,
+        reviewerEmail: actor.isAdmin ? data.reviewerEmail : "dan.collins@clarkwire.com",
         ...(resetApproval ? {
           approvalStatus: "Pending Approval", reviewedBy: "", reviewedAt: null, reviewComment: "", checklistProgress: "[]",
           status: data.status === "Done" ? "To do" : data.status,

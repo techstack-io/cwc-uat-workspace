@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { authorizedReviewer } from "@/lib/reviewers";
+import { authorizedWorkspaceUser } from "@/lib/reviewers";
 import { checklistLines, readProgress } from "@/lib/checklist";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
-  const actor = await authorizedReviewer();
-  if (!actor) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const actor = await authorizedWorkspaceUser();
+  if (!actor?.isAdmin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const { id } = await context.params;
   let body: unknown;
   try { body = await request.json(); } catch {

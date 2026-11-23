@@ -1,17 +1,25 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 
-export const reviewers = [
-  { name: "Dan", email: "dan.collins@clarkwire.com" },
-  { name: "Shane", email: "shane.collins@clarkwire.com" },
-] as const;
+const adminEmail = "dan.collins@clarkwire.com";
+const shaneEmail = "shane.collins@clarkwire.com";
 
-export async function authorizedReviewer() {
+// Configure Mike's verified Clerk email in UAT_TESTER_EMAILS (comma-separated).
+// Never authorize a user based on a client-supplied email or display name.
+export async function authorizedWorkspaceUser() {
   const { userId } = await auth();
   if (!userId) return null;
   const user = await currentUser();
+  const allowed = new Set([
+    adminEmail,
+    shaneEmail,
+    ...(process.env.UAT_TESTER_EMAILS || "").split(",").map((email) => email.trim().toLowerCase()).filter(Boolean),
+  ]);
   const email = user?.emailAddresses.find((item) =>
-    item.verification?.status === "verified" &&
-    reviewers.some((reviewer) => reviewer.email === item.emailAddress.toLowerCase())
+    item.verification?.status === "verified" && allowed.has(item.emailAddress.toLowerCase())
   )?.emailAddress.toLowerCase();
-  return email ? { userId, email } : null;
+  if (!email) return null;
+  return { userId, email, isAdmin: email === adminEmail };
 }
+
+// Legacy export for any remaining callers; authorization is shared with the workspace.
+export const authorizedReviewer = authorizedWorkspaceUser;

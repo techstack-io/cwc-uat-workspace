@@ -12,6 +12,7 @@ model Task {
   id             String   @id @default(uuid())
   workspaceId    String
   createdBy      String
+  createdByEmail String   @default("")
   title          String
   description    String   @default("")
   expectedResult String   @default("")
