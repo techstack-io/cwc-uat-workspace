@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { parseTaskInput } from "@/lib/task-validation";
-import { authorizedReviewer } from "@/lib/reviewers";
+import { authorizedWorkspaceUser } from "@/lib/reviewers";
 
 export const runtime = "nodejs";
 const workspaceId = "clark";
 
 export async function GET() {
-  const actor = await authorizedReviewer();
+  const actor = await authorizedWorkspaceUser();
   if (!actor) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   try {
     const tasks = await prisma.task.findMany({
@@ -21,7 +21,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const actor = await authorizedReviewer();
+  const actor = await authorizedWorkspaceUser();
   if (!actor) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   let body: unknown;
   try { body = await request.json(); } catch {
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   const data = parseTaskInput(body);
   if (!data) return NextResponse.json({ error: "Invalid task fields" }, { status: 400 });
   try {
-    const task = await prisma.task.create({ data: { ...data, workspaceId, createdBy: actor.userId } });
+    const task = await prisma.task.create({ data: { ...data, reviewerEmail: actor.isAdmin ? data.reviewerEmail : "dan.collins@clarkwire.com", workspaceId, createdBy: actor.userId, createdByEmail: actor.email } });
     return NextResponse.json(task, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Unable to create task" }, { status: 500 });
