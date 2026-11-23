@@ -1,0 +1,1 @@
+ALTER TABLE "Task" ADD COLUMN "createdByEmail" TEXT NOT NULL DEFAULT '';
