@@ -26,7 +26,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   if (decision === "Changes Requested" && !comment.trim()) {
     return NextResponse.json({ error: "Please explain the requested changes" }, { status: 400 });
   }
-  const task = await prisma.task.findFirst({ where: { id, workspaceId: "clark", reviewerEmail: actor.email, approvalStatus: "Pending Approval" } });
+  const task = await prisma.task.findFirst({ where: { id, workspaceId: "clark", reviewerEmail: actor.email, approvalStatus: "Pending Approval", archivedAt: null } });
   if (!task) return NextResponse.json({ error: "Task is not pending your review" }, { status: 409 });
   if (decision === "Approved") {
     const items = checklistLines(task.acceptanceCriteria);
@@ -36,7 +36,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     }
   }
   const updated = await prisma.task.updateMany({
-    where: { id, workspaceId: "clark", reviewerEmail: actor.email, approvalStatus: "Pending Approval", updatedAt: task.updatedAt },
+    where: { id, workspaceId: "clark", reviewerEmail: actor.email, approvalStatus: "Pending Approval", archivedAt: null, updatedAt: task.updatedAt },
     data: { approvalStatus: decision as string, reviewedBy: actor.email, reviewedAt: new Date(), reviewComment: comment.trim() },
   });
   if (!updated.count) return NextResponse.json({ error: "Task is not pending your review" }, { status: 409 });

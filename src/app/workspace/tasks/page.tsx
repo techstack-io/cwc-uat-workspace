@@ -4,7 +4,7 @@ import UatMark from "@/components/UatMark";
 
 import { useUser, SignOutButton } from "@clerk/nextjs";
 import Image from "next/image";
-import { Plus, LogOut, ClipboardCheck, LayoutDashboard, FilePlus2, ListChecks, Inbox, Ticket, Settings2, Plug } from "lucide-react";
+import { Plus, Archive, ArchiveRestore, LogOut, ClipboardCheck, LayoutDashboard, FilePlus2, ListChecks, Inbox, Ticket, Settings2, Plug } from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, useEffect, useState } from "react";
 
@@ -40,6 +40,8 @@ type Task = TaskFields & {
   reviewComment: string;
   checklistProgress: string;
   reviewedAt: string | null;
+  archivedAt: string | null;
+  archivedBy: string;
 };
 
 const blank: TaskFields = {
@@ -175,6 +177,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
   }, []);
   const [filter, setFilter] = useState<"All" | "Open" | "Completed">("All");
   const [assigneeFilter, setAssigneeFilter] = useState("All assignees");
+  const [archiveView, setArchiveView] = useState<"Active" | "Archived">("Active");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
@@ -231,6 +234,28 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
     } finally {
       setBusy(false);
     }
+  }
+
+  async function changeArchive(task: Task, action: "archive" | "restore") {
+    if (!isAdmin || busy) return;
+    if (action === "archive" && !window.confirm(`Archive "${task.title}"? It will leave the active list but can be restored later.`)) return;
+    setBusy(true);
+    try {
+      const response = await fetch(`/api/tasks/${encodeURIComponent(task.id)}/archive`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.error || "Unable to change archive state");
+      }
+      const updated: Task = await response.json();
+      setTasks((current) => (current ?? []).map((item) => item.id === updated.id ? updated : item));
+      setNotice(action === "archive" ? "Task archived." : "Task restored.");
+      setError("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to change archive state");
+    } finally { setBusy(false); }
   }
 
   async function reviewTask(task: Task, decision: "Approved" | "Changes Requested") {
@@ -345,9 +370,11 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
   })();
   const verifiedIndices = new Set(reviewProgress.filter((entry) => entry.by === myEmail).map((entry) => entry.index));
   const allVerified = reviewItems.length > 0 && reviewItems.every((_, index) => verifiedIndices.has(index));
-  const completed = tasks?.filter((task) => task.status === "Done").length ?? 0;
+  const activeTasks = tasks?.filter((task) => !task.archivedAt) ?? [];
+  const completed = activeTasks.filter((task) => task.status === "Done").length;
   const assignees = Array.from(new Set((tasks ?? []).map((task) => task.assignee.trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b));
   const visible = tasks?.filter((task) =>
+    (archiveView === "Archived" ? Boolean(task.archivedAt) : !task.archivedAt) &&
     (filter === "All" || (task.status === "Done") === (filter === "Completed")) &&
     (assigneeFilter === "All assignees" || (assigneeFilter === "Unassigned" ? !task.assignee.trim() : task.assignee.trim() === assigneeFilter))
   );
@@ -356,7 +383,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
     <div className="mt-7 space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold">{tasks && `${completed} of ${tasks.length} completed`}</p>
+          <p className="text-sm font-semibold">{tasks && `${completed} of ${activeTasks.length} active tasks completed`}</p>
           <p className="text-sm text-[#1E1B18]">Tasks are shared with authorized Clark team members. Saving a task makes it available to Dan immediately.</p>
           {hasLocalTasks && <button type="button" disabled={busy} className="mt-2 text-sm font-semibold text-[#E64833] underline disabled:opacity-50" onClick={() => void importLocalTasks()}>Import tasks saved in this browser</button>}
         </div>
@@ -495,6 +522,14 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
           <div className="flex flex-wrap items-center justify-between gap-4">
             <h2 id="task-list-heading" className="text-xl font-semibold">Task list</h2>
             <div className="flex flex-wrap items-center gap-2">
+              <div className="flex gap-1 rounded-lg bg-[#EDF2F3] p-1" role="group" aria-label="Archive view">
+                {(["Active", "Archived"] as const).map((item) => (
+                  <button key={item} type="button" aria-pressed={archiveView === item} onClick={() => { setArchiveView(item); setFilter("All"); }}
+                    className={`rounded-md px-3 py-1.5 text-sm font-semibold ${archiveView === item ? "bg-white shadow-sm" : "hover:bg-white/60"}`}>
+                    {item}
+                  </button>
+                ))}
+              </div>
               <div className="flex flex-wrap gap-1 rounded-lg bg-[#EDF2F3] p-1" role="group" aria-label="Filter tasks">
                 {(["All", "Open", "Completed"] as const).map((item) => (
                   <button key={item} type="button" aria-pressed={filter === item} onClick={() => setFilter(item)}
@@ -517,7 +552,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
               {visible.map((task) => (
                 <li key={task.id} className="flex items-start gap-3 py-4">
                   <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-[#E64833]"
-                    aria-label={`Complete ${task.title}`} checked={task.status === "Done"} disabled={Boolean(form) || busy || !isAdmin || task.approvalStatus !== "Approved"}
+                    aria-label={`Complete ${task.title}`} checked={task.status === "Done"} disabled={Boolean(form) || busy || !isAdmin || Boolean(task.archivedAt) || task.approvalStatus !== "Approved"}
                     onChange={async (event) => {
                       const status = event.target.checked ? "Done" : "To do";
                       if (await writeTask({ ...task, status }, true)) {
@@ -525,7 +560,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
                       }
                     }} />
                   <div className="min-w-0 flex-1">
-                    <button type="button" disabled={Boolean(form) || (!isAdmin && (task.createdBy !== user?.id || task.approvalStatus === "Approved"))} className={`break-words text-left font-semibold hover:underline disabled:cursor-default ${task.status === "Done" ? "line-through opacity-60" : ""}`} onClick={() => openForm(task)}>{task.title}</button>
+                    <button type="button" disabled={Boolean(form) || Boolean(task.archivedAt) || (!isAdmin && (task.createdBy !== user?.id || task.approvalStatus === "Approved"))} className={`break-words text-left font-semibold hover:underline disabled:cursor-default ${task.status === "Done" ? "line-through opacity-60" : ""}`} onClick={() => openForm(task)}>{task.title}</button>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       <span className="inline-flex items-center gap-2 rounded-lg border border-[#90AEAD] bg-[#EDF2F3] px-3 py-1.5 text-sm font-semibold text-[#244855]">
                         <span className="text-xs font-bold uppercase tracking-wide">Assignee</span>
@@ -546,17 +581,25 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
                     )}
                     {task.acceptanceCriteria && <p className="mt-2 text-xs font-semibold text-[#244855]">Checklist: {(() => { try { const value: unknown = JSON.parse(task.checklistProgress || "[]"); return Array.isArray(value) ? value.filter((entry) => entry.by === task.reviewerEmail).length : 0; } catch { return 0; } })()} / {task.acceptanceCriteria.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).length} verified</p>}
                     {task.reviewComment && <p className="mt-1 text-sm">Review comment: {task.reviewComment}</p>}
-                    {task.approvalStatus === "Pending Approval" && myEmail === task.reviewerEmail && (
+                    {task.approvalStatus === "Pending Approval" && !task.archivedAt && myEmail === task.reviewerEmail && (
                       <button type="button" disabled={busy || Boolean(form)} className="mt-3 rounded-xl border border-[#244855] px-4 py-2 text-sm font-semibold text-[#244855] hover:bg-[#E5EEEE] disabled:opacity-50" onClick={() => openReview(task)}>
                         Review task
                       </button>
                     )}
                   </div>
-                  <span className="shrink-0 rounded-md bg-[#EDF2F3] px-2 py-1 text-xs font-semibold">{task.status}</span>
+                  <div className="flex shrink-0 flex-col items-end gap-2">
+                    <span className="rounded-md bg-[#EDF2F3] px-2 py-1 text-xs font-semibold">{task.archivedAt ? "Archived" : task.status}</span>
+                    {task.archivedAt && <span className="text-xs text-[#244855]">{new Date(task.archivedAt).toLocaleDateString()}</span>}
+                    {isAdmin && <button type="button" disabled={busy || Boolean(form)} onClick={() => void changeArchive(task, task.archivedAt ? "restore" : "archive")}
+                      className="inline-flex items-center gap-1 rounded-lg border border-[#BFCFD2] px-2 py-1.5 text-xs font-semibold hover:bg-[#EDF2F3] disabled:opacity-50">
+                      {task.archivedAt ? <ArchiveRestore size={14} /> : <Archive size={14} />}
+                      {task.archivedAt ? "Restore" : "Archive"}
+                    </button>}
+                  </div>
                 </li>
               ))}
             </ul>
-          ) : <p className="mt-5 text-sm text-[#1E1B18]">{tasks.length === 0 ? "Create a task to start tracking UAT work." : `No ${filter.toLowerCase()} tasks.`}</p>}
+          ) : <p className="mt-5 text-sm text-[#1E1B18]">{tasks.length === 0 ? "Create a task to start tracking UAT work." : archiveView === "Archived" ? "No archived tasks match these filters." : `No ${filter.toLowerCase()} active tasks.`}</p>}
         </section>
       )}
     </div>
