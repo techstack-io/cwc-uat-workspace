@@ -13,7 +13,7 @@ import {
 
 const nav = [
   { label: "Overview", href: "/workspace", Icon: LayoutDashboard, active: true },
-  { label: "New Submission", href: "/workspace/new", Icon: FilePlus2, active: false },
+  { label: "New Submission", href: "/workspace/tasks?new=1", Icon: FilePlus2, active: false },
   { label: "Tasks", href: "/workspace/tasks", Icon: ListChecks, active: false },
 ];
 const metrics = [
@@ -150,8 +150,8 @@ export default function WorkspaceDashboard() {
               <h1 className="text-[#1E1B18] text-3xl font-light tracking-tight md:text-[30px]">Dashboard Overview</h1>
               <p className="mt-3 text-[#1E1B18]">Organize findings and prepare structured issues for Jira review.</p>
             </div>
-            <Link href="/workspace/new" className="inline-flex items-center gap-2 rounded-xl bg-[#E64833] px-5 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#C83B29]">
-              <FilePlus2 size={18}/> New UAT Submission
+            <Link href="/workspace/tasks?new=1" className="inline-flex items-center gap-2 rounded-xl bg-[#E64833] px-5 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#C83B29]">
+              <FilePlus2 size={18}/> Create UAT Task
             </Link>
           </div>
 
@@ -169,9 +169,9 @@ export default function WorkspaceDashboard() {
           <div className="grid gap-5 lg:grid-cols-[1.35fr_1fr]">
             <div className="rounded-2xl border border-[#DCE5E6] bg-white p-6 shadow-sm">
               <p className="text-xs font-bold uppercase tracking-widest text-[#874F41]">Quick action</p>
-              <h2 className="mt-3 text-xl font-semibold">Start a new UAT submission</h2>
-              <p className="mt-3 text-sm leading-relaxed text-[#1E1B18]">Describe issues in plain English. For now, the submission screen provides an editable local preview; the Jira-ready field format will be defined separately.</p>
-              <Link href="/workspace/new" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#E64833] px-5 py-3 text-sm font-bold text-white hover:bg-[#C83B29]">New UAT Submission <ArrowRight size={17}/></Link>
+              <h2 className="mt-3 text-xl font-semibold">Create a shared UAT task</h2>
+              <p className="mt-3 text-sm leading-relaxed text-[#1E1B18]">Create a task in the shared workspace. When Shane or Mike saves, Dan can see and manage it immediately.</p>
+              <Link href="/workspace/tasks?new=1" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#E64833] px-5 py-3 text-sm font-bold text-white hover:bg-[#C83B29]">Create UAT Task <ArrowRight size={17}/></Link>
             </div>
             <div className="rounded-2xl border border-[#DCE5E6] bg-white p-6 shadow-sm">
               <h2 className="text-lg font-semibold">Workflow</h2>
@@ -189,7 +189,7 @@ export default function WorkspaceDashboard() {
             <div className="mt-6 flex flex-col items-center rounded-xl border border-dashed border-[#DCE5E6] px-6 py-10 text-center">
               <ListChecks size={30} className="text-[#90AEAD]"/>
               <p className="mt-3 font-semibold">No saved submissions yet</p>
-              <p className="mt-2 max-w-md text-sm text-[#1E1B18]">Submission history will appear here after database persistence is implemented. The current preview is not saved.</p>
+              <p className="mt-2 max-w-md text-sm text-[#1E1B18]">Saved tasks are available in the Tasks page. This dashboard summary is not yet connected.</p>
             </div>
           </div>
         </section>
