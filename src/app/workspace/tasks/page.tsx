@@ -59,7 +59,7 @@ const textFields = [
 
 const navigation = [
   { label: "Overview", href: "/workspace", Icon: LayoutDashboard },
-  { label: "New Submission", href: "/workspace/new", Icon: FilePlus2 },
+  { label: "Create Task", href: "/workspace/tasks?new=1", Icon: FilePlus2 },
   { label: "Tasks", href: "/workspace/tasks", Icon: ListChecks },
 ];
 
