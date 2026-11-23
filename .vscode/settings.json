@@ -1,0 +1,18 @@
+{
+    "eslint.enable": false,
+    "standard.enable": false,
+    "workbench.colorCustomizations": {
+        "activityBar.foreground": "#ADC7FF",
+        "activityBar.background": "#000E2C",
+        "activityBar.inactiveForeground": "#09567D",
+        "activityBarBadge.foreground": "#250053",
+        "activityBarBadge.background": "#C598FF",
+        "statusBar.foreground": "#98FFD6",
+        "statusBar.background": "#0E8354",
+        "statusBarItem.hoverBackground": "#175756",
+        "statusBarItem.remoteForeground": "#C4E9FF",
+        "statusBarItem.remoteBackground": "#226C96",
+        "statusBar.debuggingForeground": "#000000",
+        "statusBar.debuggingBackground": "#44B98B"
+    }
+}
