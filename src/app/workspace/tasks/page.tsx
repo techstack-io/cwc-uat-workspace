@@ -7,7 +7,6 @@ import Image from "next/image";
 import { Plus, LogOut, ClipboardCheck, LayoutDashboard, FilePlus2, ListChecks, Inbox, Ticket, Settings2, Plug } from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 
 const statuses = ["To do", "In progress", "Blocked", "Done"] as const;
 const priorities = ["Low", "Medium", "High", "Critical"] as const;
@@ -66,7 +65,6 @@ const navigation = [
 
 export default function TasksPage() {
   const { user } = useUser();
-  const searchParams = useSearchParams();
 
   return (
     <main className="min-h-screen bg-white text-[#1E1B18]">
@@ -158,7 +156,7 @@ export default function TasksPage() {
             </a>.
           </p>
           {user ? (
-            <TaskWorkspace key={user.id} storageKey={`cwc-uat-tasks-v1:${user.id}`} startNew={searchParams.get("new") === "1"} />
+            <TaskWorkspace key={user.id} storageKey={`cwc-uat-tasks-v1:${user.id}`} />
           ) : (
             <p role="status" className="mt-6 text-sm">Loading tasks…</p>
           )}
@@ -168,10 +166,13 @@ export default function TasksPage() {
   );
 }
 
-function TaskWorkspace({ storageKey, startNew }: { storageKey: string; startNew: boolean }) {
+function TaskWorkspace({ storageKey }: { storageKey: string }) {
   const [tasks, setTasks] = useState<Task[] | null>(null);
   const [editing, setEditing] = useState<string | null>(null);
-  const [form, setForm] = useState<TaskFields | null>(startNew ? { ...blank } : null);
+  const [form, setForm] = useState<TaskFields | null>(null);
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("new") === "1") setForm({ ...blank });
+  }, []);
   const [filter, setFilter] = useState<"All" | "Open" | "Completed">("All");
   const [assigneeFilter, setAssigneeFilter] = useState("All assignees");
   const [error, setError] = useState("");
