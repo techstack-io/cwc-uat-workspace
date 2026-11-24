@@ -1,3 +1,5 @@
+import { canReview, shaneEmail } from "./reviewer-roles";
+
 export const taskStatuses = ["To do", "In progress", "Blocked", "Done"] as const;
 export const taskPriorities = ["Low", "Medium", "High", "Critical"] as const;
 export const taskAreas = [
@@ -39,7 +41,7 @@ export function parseTaskInput(value: unknown): TaskInput | null {
   if (!taskAreas.includes(data.area as typeof taskAreas[number])) return null;
   if (!taskPriorities.includes(data.priority as typeof taskPriorities[number])) return null;
   if (!taskStatuses.includes(data.status as typeof taskStatuses[number])) return null;
-  if (!["dan.collins@clarkwire.com", "shane.collins@clarkwire.com"].includes(data.reviewerEmail)) return null;
+  if (!canReview(data.reviewerEmail) && data.reviewerEmail !== shaneEmail) return null;
   if (data.rootCause.length > 10000) return null;
   if (data.dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(data.dueDate)) return null;
   if (data.jiraKey && !/^[A-Z][A-Z0-9]+-[0-9]+$/.test(data.jiraKey)) return null;

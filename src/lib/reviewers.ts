@@ -1,9 +1,8 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 
-const adminEmail = "dan.collins@clarkwire.com";
-const shaneEmail = "shane.collins@clarkwire.com";
+import { adminEmail, mikeEmail, shaneEmail } from "./reviewer-roles";
 
-// Configure Mike's verified Clerk email in UAT_TESTER_EMAILS (comma-separated).
+// Configure additional testers in UAT_TESTER_EMAILS (comma-separated).
 // Never authorize a user based on a client-supplied email or display name.
 export async function authorizedWorkspaceUser() {
   const { userId } = await auth();
@@ -12,6 +11,7 @@ export async function authorizedWorkspaceUser() {
   const allowed = new Set([
     adminEmail,
     shaneEmail,
+    mikeEmail,
     ...(process.env.UAT_TESTER_EMAILS || "").split(",").map((email) => email.trim().toLowerCase()).filter(Boolean),
   ]);
   const email = user?.emailAddresses.find((item) =>
