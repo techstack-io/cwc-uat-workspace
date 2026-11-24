@@ -1,6 +1,7 @@
 "use client";
 
 import UatMark from "@/components/UatMark";
+import { adminEmail, canReview, mikeEmail, shaneEmail } from "@/lib/reviewer-roles";
 
 import { useUser, SignOutButton } from "@clerk/nextjs";
 import Image from "next/image";
@@ -182,8 +183,8 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
   const { user } = useUser();
-  const myEmail = user?.emailAddresses.find((e) => e.verification?.status === "verified" && e.emailAddress.toLowerCase() === "dan.collins@clarkwire.com")?.emailAddress.toLowerCase();
-  const isAdmin = Boolean(myEmail);
+  const myEmail = user?.emailAddresses.find((e) => e.verification?.status === "verified" && canReview(e.emailAddress.toLowerCase()))?.emailAddress.toLowerCase();
+  const isAdmin = myEmail === adminEmail;
   const [reviewComments, setReviewComments] = useState<Record<string, string>>({});
   const [reviewingId, setReviewingId] = useState<string | null>(null);
   const [criteriaReviewed, setCriteriaReviewed] = useState(false);
@@ -419,7 +420,8 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
               <label className="block">Assigned reviewer
                 <select disabled={!isAdmin} className={field} value={form.reviewerEmail} onChange={(event) => update("reviewerEmail", event.target.value)}>
                   <option value="dan.collins@clarkwire.com">Dan</option>
-                  {isAdmin && <option value="shane.collins@clarkwire.com">Shane (legacy reviews)</option>}
+                  {isAdmin && <option value={mikeEmail}>Mike</option>}
+                  {isAdmin && <option value={shaneEmail}>Shane (legacy reviews)</option>}
                 </select>
               </label>
               <label className="block">Test area
@@ -571,7 +573,7 @@ function TaskWorkspace({ storageKey }: { storageKey: string }) {
                       {[task.area, task.priority, task.dueDate && `Due ${task.dueDate}`, task.jiraKey].filter(Boolean).join(" · ")}
                     </p>
                     <p className="mt-2 text-xs font-semibold text-[#244855]">Created by: {task.createdByEmail || (task.createdBy === user?.id ? "You" : "Existing task")}</p>
-                    <p className="mt-1 text-xs font-semibold">Review: {task.approvalStatus} · Assigned to {task.reviewerEmail === "shane.collins@clarkwire.com" ? "Shane" : "Dan"}</p>
+                    <p className="mt-1 text-xs font-semibold">Review: {task.approvalStatus} · Assigned to {task.reviewerEmail === mikeEmail ? "Mike" : task.reviewerEmail === shaneEmail ? "Shane" : "Dan"}</p>
                     {task.approvalStatus === "Approved" && <p className="mt-1 text-xs font-semibold text-[#244855]">Ready for Jira</p>}
                     {task.acceptanceCriteria && (
                       <div className="mt-3 rounded-lg border border-[#DCE5E6] bg-white p-3">
